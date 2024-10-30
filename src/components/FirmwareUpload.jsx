@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "react-toastify";
 
 const FirmwareUpload = () => {
   const [name, setName] = useState("");
@@ -37,6 +38,7 @@ const FirmwareUpload = () => {
         });
         setName("");
         setFile(null);
+        toast.success("Firmware uploaded successfully.");
       } else {
         setMessage({
           text: data.error || "Failed to upload firmware",
@@ -45,6 +47,7 @@ const FirmwareUpload = () => {
       }
     } catch (error) {
       console.log(error);
+      toast.error("Failed To Upload Firmware");
       setMessage({ text: "Failed to upload firmware", type: "error" });
     }
   };

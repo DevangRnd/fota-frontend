@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 const DeviceManagement = () => {
   const [devices, setDevices] = useState([]);
@@ -57,9 +58,11 @@ const DeviceManagement = () => {
       setSuccess("Update initiated successfully.");
       setSelectedDevices([]);
       setSelectedFirmware("");
+      toast.success("Initiate Update Successfull For Selected Devices");
       await fetchDevices(); // Refresh devices to show updated status
     } catch (error) {
       console.log(error);
+      toast.error("Failed To Initiate Update");
       setError("Failed to initiate update.");
     } finally {
       setLoading(false);
@@ -78,8 +81,8 @@ const DeviceManagement = () => {
     <div className="container mx-auto p-4">
       <h2 className="text-lg font-semibold mb-4">Device Management</h2>
 
-      {error && <div className="text-red-500">{error}</div>}
-      {success && <div className="text-green-500">{success}</div>}
+      {/* {error && <div className="text-red-500">{error}</div>}
+      {success && <div className="text-green-500">{success}</div>} */}
 
       <div className="mb-4">
         <label
