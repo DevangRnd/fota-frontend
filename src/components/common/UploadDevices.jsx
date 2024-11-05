@@ -1,13 +1,4 @@
-import React from "react";
-import {
-  Box,
-  Button,
-  Input,
-  Text,
-  VStack,
-  Spinner,
-  Flex,
-} from "@chakra-ui/react";
+import { Box, Button, Input, Text, Spinner, Flex } from "@chakra-ui/react";
 import useUploadStore from "../../store/uploadStore";
 import {
   DialogBody,
@@ -62,24 +53,31 @@ const UploadDevices = () => {
           type="file"
           accept=".xlsx, .xls, .csv"
           onChange={handleFileChange}
-          mb={4}
         />
-        <Button
-          colorScheme="teal"
-          onClick={handleUpload}
-          isDisabled={!file || loading}
-        >
-          {loading ? <Spinner size="sm" /> : "Upload"}
-        </Button>
+        {file && (
+          <Text fontSize="sm" color="green.500" py={2}>
+            Selected File: {file.name}
+          </Text>
+        )}
+        {loading ? (
+          <Button>
+            <Spinner mr={2} />
+            Uploading..
+          </Button>
+        ) : (
+          <Button
+            colorScheme="teal"
+            onClick={handleUpload}
+            isDisabled={!file || loading}
+          >
+            Upload
+          </Button>
+        )}
       </Box>
       {(successfulDevices.length > 0 || failedDevices.length > 0) && (
         <Flex gap={4} mt={6}>
           {successfulDevices.length > 0 && (
-            <DialogRoot
-              size="cover"
-              placement="center"
-              motionPreset="slide-in-bottom"
-            >
+            <DialogRoot size="full" motionPreset="slide-in-bottom">
               <DialogTrigger asChild>
                 <Button variant={"outline"} color={"green.500"}>
                   Successful Devices ({successfulDevices.length})
@@ -102,11 +100,7 @@ const UploadDevices = () => {
           )}
 
           {failedDevices.length > 0 && (
-            <DialogRoot
-              size="cover"
-              placement="center"
-              motionPreset="slide-in-bottom"
-            >
+            <DialogRoot size="full" motionPreset="slide-in-bottom">
               <DialogTrigger asChild>
                 <Button variant={"outline"} color={"red.500"}>
                   Failed Devices ({failedDevices.length})
@@ -117,9 +111,9 @@ const UploadDevices = () => {
                   <DialogTitle>Failed Devices:</DialogTitle>
                   <DialogCloseTrigger />
                 </DialogHeader>
-                <DialogBody>
+                <DialogBody overflow={"hidden"}>
                   {failedDevices.map((deviceId) => (
-                    <Text key={deviceId} color="white" p={2}>
+                    <Text fontWeight={"bold"} key={deviceId}>
                       {deviceId}
                     </Text>
                   ))}
@@ -129,58 +123,6 @@ const UploadDevices = () => {
           )}
         </Flex>
       )}
-      {/* {successfulDevices.length > 0 && (
-        <DialogRoot
-          size="cover"
-          placement="center"
-          motionPreset="slide-in-bottom"
-        >
-          <DialogTrigger asChild>
-            <Button variant="outline" size="sm">
-              See Successfull Devices {successfulDevices.length}
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Successfull Devices:</DialogTitle>
-              <DialogCloseTrigger />
-            </DialogHeader>
-            <DialogBody>
-              {successfulDevices.map((deviceId) => (
-                <Text key={deviceId} color="white">
-                  {deviceId}
-                </Text>
-              ))}
-            </DialogBody>
-          </DialogContent>
-        </DialogRoot>
-      )}
-      {failedDevices.length > 0 && (
-        <DialogRoot
-          size="cover"
-          placement="center"
-          motionPreset="slide-in-bottom"
-        >
-          <DialogTrigger asChild>
-            <Button variant="outline" size="sm">
-              See Failed Devices {failedDevices.length}
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Failed Devices:</DialogTitle>
-              <DialogCloseTrigger />
-            </DialogHeader>
-            <DialogBody>
-              {failedDevices.map((deviceId) => (
-                <Text key={deviceId} color="white">
-                  {deviceId}
-                </Text>
-              ))}
-            </DialogBody>
-          </DialogContent>
-        </DialogRoot>
-      )} */}
     </Flex>
   );
 };

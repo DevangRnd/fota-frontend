@@ -69,8 +69,8 @@ const useDeviceStore = create((set, get) => ({
       });
       toaster.success({
         title: "Successfully Initated",
-        description: "Update For Selected Devices",
-        duration: 3000,
+        description: `Update For Selected Devices (${selectedDevices.length})`,
+        duration: 7000,
         isClosable: true,
       });
       await fetchData();

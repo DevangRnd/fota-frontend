@@ -1,8 +1,9 @@
-import React, { useEffect } from "react";
-import { Box, Button, Spinner, Table, Text } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
+import { Box, Button, Spinner, Table, Text, Input } from "@chakra-ui/react";
 import { Checkbox } from "../ui/checkbox";
-
+import { Alert } from "../ui/alert";
 import useDeviceStore from "../../store/deviceStore";
+
 const DeviceManagement = () => {
   const {
     loading,
@@ -16,20 +17,55 @@ const DeviceManagement = () => {
     buttonLoading,
     initiateUpdate,
   } = useDeviceStore();
+
+  // State for search, pagination, and items per page
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [devicesPerPage, setDevicesPerPage] = useState(10);
+
+  // Fetch data when component mounts
   useEffect(() => {
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Handle search filtering across all fields with Object.values
+  const filteredDevices = allDevices.filter((device) => {
+    const search = searchTerm.toLowerCase();
+    return Object.values(device).some((value) =>
+      String(value).toLowerCase().includes(search)
+    );
+  });
+
+  // Pagination logic
+  const indexOfLastDevice = currentPage * devicesPerPage;
+  const indexOfFirstDevice = indexOfLastDevice - devicesPerPage;
+  const currentDevices = filteredDevices.slice(
+    indexOfFirstDevice,
+    indexOfLastDevice
+  );
+
+  // Handle page change
+  const totalPages = Math.ceil(filteredDevices.length / devicesPerPage);
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  // Handle Select All functionality
+  const handleSelectAll = () => {
+    const deviceIds = currentDevices.map((device) => device.deviceId);
+    deviceIds.forEach(selectDevice);
+  };
 
   if (loading) {
     return (
       <Box h={"100dvh"} w={"100%"} display={"grid"} placeItems={"center"}>
-        <Spinner color={"green.500"} size={"lg"} />
+        <Spinner color={"blue.500"} size={"lg"} />
       </Box>
     );
   }
+
   return (
     <Box w={"80%"} mx={"auto"} my={10}>
-      <Text as={"label"} htmlFor="select" fontSize={"xl"}>
+      <Text as={"label"} my={2} htmlFor="select" fontSize={"xl"}>
         Select Firmware:
       </Text>
       <Box
@@ -50,7 +86,45 @@ const DeviceManagement = () => {
           </option>
         ))}
       </Box>
-      <Table.Root size={"lg"} interactive>
+
+      {/* Search and pagination controls */}
+      <Box
+        display={"grid"}
+        alignItems={"center"}
+        gridTemplateColumns={{ base: "repeat(1,1fr)", lg: "repeat(3,1fr)" }}
+        my={4}
+        gap={5}
+      >
+        <Input
+          p={2}
+          rounded={"md"}
+          placeholder="Search across all fields"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+
+        <Box
+          as={"select"}
+          p={2}
+          value={devicesPerPage}
+          onChange={(e) => setDevicesPerPage(Number(e.target.value))}
+          rounded={"md"}
+        >
+          <option value={10}>10 per page</option>
+          <option value={20}>20 per page</option>
+          <option value={50}>50 per page</option>
+        </Box>
+        {/* <Button onClick={handleSelectAll}>Select All on Page</Button> */}
+      </Box>
+      {searchTerm.trim() !== "" ? (
+        <Alert variant={"subtle"} title={`Search Results for ${searchTerm}`} />
+      ) : null}
+      <Alert
+        variant={"outline"}
+        my={3}
+        title={`No. Of Items: ${filteredDevices.length}`}
+      />
+      <Table.Root size={"lg"} striped>
         <Table.Header>
           <Table.Row>
             <Table.ColumnHeader>Device ID</Table.ColumnHeader>
@@ -61,11 +135,13 @@ const DeviceManagement = () => {
             <Table.ColumnHeader>Pending Update</Table.ColumnHeader>
             <Table.ColumnHeader>Target Firmware</Table.ColumnHeader>
             <Table.ColumnHeader>Current Firmware</Table.ColumnHeader>
-            <Table.ColumnHeader>Select</Table.ColumnHeader>
+            <Table.ColumnHeader onClick={handleSelectAll} cursor={"pointer"}>
+              <Text>Select All</Text>
+            </Table.ColumnHeader>
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          {allDevices.map((device) => (
+          {currentDevices.map((device) => (
             <Table.Row key={device._id}>
               <Table.Cell>{device.deviceId}</Table.Cell>
               <Table.Cell>{device.vendor}</Table.Cell>
@@ -79,6 +155,7 @@ const DeviceManagement = () => {
               <Table.Cell>{device.currentFirmware || "-"}</Table.Cell>
               <Table.Cell>
                 <Checkbox
+                  colorPalette={"green"}
                   checked={selectedDevices.includes(device.deviceId)}
                   onChange={() => selectDevice(device.deviceId)}
                 />
@@ -87,6 +164,23 @@ const DeviceManagement = () => {
           ))}
         </Table.Body>
       </Table.Root>
+
+      {/* Pagination Controls */}
+      <Box display="flex" justifyContent={"center"} mt={4}>
+        {Array.from({ length: totalPages }, (_, i) => (
+          <Button
+            key={i}
+            mx={1}
+            onClick={() => paginate(i + 1)}
+            isActive={i + 1 === currentPage}
+            colorScheme={i + 1 === currentPage ? "teal" : "gray"}
+            variant={i + 1 === currentPage ? "solid" : "outline"}
+          >
+            {i + 1}
+          </Button>
+        ))}
+      </Box>
+
       {buttonLoading ? (
         <Button my={4} disabled color={"gray.400"}>
           <Spinner /> Initiating Update
@@ -103,4 +197,5 @@ const DeviceManagement = () => {
     </Box>
   );
 };
+
 export default DeviceManagement;
