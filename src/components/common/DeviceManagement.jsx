@@ -132,7 +132,9 @@ const DeviceManagement = () => {
             <Table.ColumnHeader>District</Table.ColumnHeader>
             <Table.ColumnHeader>Block</Table.ColumnHeader>
             <Table.ColumnHeader>Panchayat</Table.ColumnHeader>
-            <Table.ColumnHeader>Pending Update</Table.ColumnHeader>
+            <Table.ColumnHeader textAlign={"center"}>
+              Pending Update
+            </Table.ColumnHeader>
             <Table.ColumnHeader>Target Firmware</Table.ColumnHeader>
             <Table.ColumnHeader>Current Firmware</Table.ColumnHeader>
             <Table.ColumnHeader onClick={handleSelectAll} cursor={"pointer"}>
@@ -148,7 +150,13 @@ const DeviceManagement = () => {
               <Table.Cell>{device.district}</Table.Cell>
               <Table.Cell>{device.block}</Table.Cell>
               <Table.Cell>{device.panchayat}</Table.Cell>
-              <Table.Cell>{device.pendingUpdate ? "Yes" : "No"}</Table.Cell>
+              <Table.Cell>
+                {device.pendingUpdate ? (
+                  <Box h={5} w={5} bg={"red"} rounded={"full"} />
+                ) : (
+                  <Box h={5} w={5} bg={"green"} rounded={"full"} />
+                )}
+              </Table.Cell>
               <Table.Cell>
                 {device.pendingUpdate ? device.targetFirmwareName : "-"}
               </Table.Cell>

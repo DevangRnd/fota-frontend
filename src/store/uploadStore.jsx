@@ -33,7 +33,7 @@ const useUploadStore = create((set, get) => ({
 
     try {
       const response = await axios.post(
-        "https://fota-backend.onrender.com/api/add-device",
+        "http://103.127.29.215/api/add-device",
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },

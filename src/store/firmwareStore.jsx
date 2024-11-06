@@ -78,7 +78,7 @@ const useFirmwareStore = create((set, get) => ({
     try {
       // Axios post request with proper configuration
       const response = await axios.post(
-        "https://fota-backend.onrender.com/api/upload-firmware",
+        "http://103.127.29.215/api/upload-firmware",
         formData,
         {
           headers: {

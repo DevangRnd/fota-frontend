@@ -13,9 +13,33 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "../ui/drawer";
+import {
+  DialogActionTrigger,
+  DialogBody,
+  DialogCloseTrigger,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogRoot,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
 import { Menu } from "lucide-react";
 import { ColorModeButton } from "../ui/color-mode";
+import useAuthStore from "../../store/authStore";
+import { useNavigate } from "react-router-dom";
+import { toaster } from "../ui/toaster";
 const Navbar = () => {
+  const navigate = useNavigate();
+  const { logout } = useAuthStore();
+  const handleLogOut = () => {
+    logout();
+    navigate("/login");
+    toaster.create({
+      title: "Logged Out",
+      duration: 3000,
+    });
+  };
   return (
     <>
       <Box as="header" position="sticky" w="100%" bg="blue.500">
@@ -133,11 +157,35 @@ const Navbar = () => {
             >
               Upload Devices
             </NavLink>
+            <DialogRoot>
+              <DialogTrigger asChild>
+                <Button variant={"outline"}>LogOut</Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Do You Want To LogOut?</DialogTitle>
+                </DialogHeader>
+                {/* <DialogBody>
+                  <p>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
+                    do eiusmod tempor incididunt ut labore et dolore magna
+                    aliqua.
+                  </p>
+                </DialogBody> */}
+                <DialogFooter>
+                  <DialogActionTrigger asChild>
+                    <Button variant="outline">Cancel</Button>
+                  </DialogActionTrigger>
+                  <Button onClick={handleLogOut}>LogOut</Button>
+                </DialogFooter>
+                <DialogCloseTrigger />
+              </DialogContent>
+            </DialogRoot>
+
             <ColorModeButton />
           </Flex>
         </Flex>
       </Box>
-      <Outlet />
     </>
   );
 };

@@ -14,8 +14,8 @@ const useDeviceStore = create((set, get) => ({
 
     try {
       const [devicesResponse, firmwaresResponse] = await Promise.all([
-        axios.get("https://fota-backend.onrender.com/api/devices"),
-        axios.get("https://fota-backend.onrender.com/api/firmwares"),
+        axios.get("http://103.127.29.215/api/devices"),
+        axios.get("http://103.127.29.215/api/firmwares"),
       ]);
 
       set({
@@ -54,13 +54,10 @@ const useDeviceStore = create((set, get) => ({
     const { selectedDevices, selectedFirmware, fetchData } = get();
 
     try {
-      await axios.post(
-        "https://fota-backend.onrender.com/api/initiate-update",
-        {
-          deviceIds: selectedDevices,
-          firmwareName: selectedFirmware,
-        }
-      );
+      await axios.post("http://103.127.29.215/api/initiate-update", {
+        deviceIds: selectedDevices,
+        firmwareName: selectedFirmware,
+      });
 
       set({
         selectedDevices: [],
@@ -93,7 +90,7 @@ const useDeviceStore = create((set, get) => ({
     set({ loading: true });
 
     try {
-      await axios.post("https://fota-backend.onrender.com/api/add-device", {
+      await axios.post("http://103.127.29.215/api/add-device", {
         deviceId: deviceIds.split(",").map((id) => id.trim()),
       });
       toaster.success({
