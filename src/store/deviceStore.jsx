@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import axios from "axios";
 import { toaster } from "../components/ui/toaster";
+
 const useDeviceStore = create((set, get) => ({
   loading: false, // For initial page load
   buttonLoading: false, // For button-specific loading during initiate update
@@ -18,13 +19,14 @@ const useDeviceStore = create((set, get) => ({
         axios.get("http://103.127.29.215/api/firmwares"),
       ]);
 
+      // Assuming each device now has an `updateStatus` field directly from the backend
       set({
         allDevices: devicesResponse.data.allDevices,
         firmwares: firmwaresResponse.data.allFirmwares,
       });
     } catch (error) {
       toaster.error({
-        title: "Some Error Occured",
+        title: "Some Error Occurred",
         description: "Please Try After Some Time",
         status: "error",
         duration: 10000,
@@ -65,7 +67,7 @@ const useDeviceStore = create((set, get) => ({
         success: "Update initiated successfully",
       });
       toaster.success({
-        title: "Successfully Initated",
+        title: "Successfully Initiated",
         description: `Update For Selected Devices (${selectedDevices.length})`,
         duration: 7000,
         isClosable: true,
@@ -79,12 +81,14 @@ const useDeviceStore = create((set, get) => ({
         duration: 7000,
         isClosable: true,
       });
-      console.log(error);
+      console.error(error);
     } finally {
       set({ buttonLoading: false });
     }
   },
+
   setDeviceIds: (ids) => set({ deviceIds: ids }),
+
   uploadDevices: async () => {
     const deviceIds = get().deviceIds;
     set({ loading: true });
@@ -94,9 +98,8 @@ const useDeviceStore = create((set, get) => ({
         deviceId: deviceIds.split(",").map((id) => id.trim()),
       });
       toaster.success({
-        title: "Devices Added Sucessfully",
+        title: "Devices Added Successfully",
         description: "Go To Device Management",
-
         duration: 3000,
         isClosable: true,
       });
