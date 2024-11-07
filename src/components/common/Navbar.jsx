@@ -1,6 +1,5 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import {
-  User,
   Menu as MenuIcon,
   LogOut,
   Laptop,
