@@ -59,13 +59,10 @@ const useAuthStore = create(
       register: async (username, password) => {
         set({ isLoading: true, error: null });
         try {
-          const response = await axios.post(
-            "http://103.127.29.215/auth/register",
-            {
-              username,
-              password,
-            }
-          );
+          await axios.post("http://103.127.29.215/auth/register", {
+            username,
+            password,
+          });
           set({ isLoading: false });
           return true;
         } catch (error) {

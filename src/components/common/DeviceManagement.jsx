@@ -132,9 +132,7 @@ const DeviceManagement = () => {
             <Table.ColumnHeader>District</Table.ColumnHeader>
             <Table.ColumnHeader>Block</Table.ColumnHeader>
             <Table.ColumnHeader>Panchayat</Table.ColumnHeader>
-            <Table.ColumnHeader textAlign={"center"}>
-              Pending Update
-            </Table.ColumnHeader>
+            <Table.ColumnHeader>Pending Update</Table.ColumnHeader>
             <Table.ColumnHeader>Target Firmware</Table.ColumnHeader>
             <Table.ColumnHeader>Current Firmware</Table.ColumnHeader>
             <Table.ColumnHeader onClick={handleSelectAll} cursor={"pointer"}>
