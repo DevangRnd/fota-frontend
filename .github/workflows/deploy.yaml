@@ -3,58 +3,65 @@ name: Deploy React Vite App
 on:
   push:
     branches:
-      - chakra
+      - chakra  # Trigger deployment on push to the chakra branch. Change as needed.
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Checkout the code
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # Step 2: Setup Node.js environment
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "20"
+          node-version: "20"  # Update to the Node.js version you're using
 
+      # Step 3: Install dependencies
       - name: Install dependencies
         run: npm ci
 
+      # Step 4: Build the application
       - name: Build application
         run: npm run build
 
+      # Step 5: Create SSH directory for the private key
       - name: Create SSH Directory
         run: |
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
+          mkdir -p /tmp/.ssh
+          chmod 700 /tmp/.ssh
         shell: bash
 
+      # Step 6: Add SSH private key to the file system
       - name: Add SSH Private Key
         run: |
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/github-actions
-          chmod 600 ~/.ssh/github-actions
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' > /tmp/.ssh/github-actions
         shell: bash
 
+      # Step 7: Set SSH private key permissions
+      - name: Set SSH Key Permissions
+        run: chmod 600 /tmp/.ssh/github-actions
+
+      # Step 8: Add the server's SSH key to known hosts
       - name: Add Server to Known Hosts
         run: |
-          ssh-keyscan -p 22 -H 102.127.29.15 >> ~/.ssh/known_hosts
-          chmod 644 ~/.ssh/known_hosts
-        shell: bash
+          ssh-keyscan -p 22 -H 102.127.29.15 >> /tmp/.ssh/known_hosts
+          chmod 644 /tmp/.ssh/known_hosts
 
-      - name: Add SSH Public Key to Authorized Keys (Server Side)
-        run: |
-          ssh -p 22 -i ~/.ssh/github-actions root@102.127.29.15 "mkdir -p ~/.ssh && echo '${{ secrets.SSH_PUBLIC_KEY }}' >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys"
-        shell: bash
-
+      # Step 9: Test SSH connection to the server
       - name: Test SSH Connection
-        run: ssh -p 22 -i ~/.ssh/github-actions root@102.127.29.15 "echo SSH connection successful"
+        run: ssh -p 22 -i /tmp/.ssh/github-actions root@102.127.29.15 "echo SSH connection successful"
 
+      # Step 10: Deploy to the server using rsync
       - name: Deploy to server
         run: |
-          rsync -avz -e "ssh -p 22 -i ~/.ssh/github-actions" \
+          rsync -avz -e "ssh -p 22 -i /tmp/.ssh/github-actions" \
             dist/ root@102.127.29.15:/var/www/html/
 
+      # Step 11: Reload Nginx to serve the updated app
       - name: Reload Nginx
         run: |
-          ssh -p 22 -i ~/.ssh/github-actions root@102.127.29.15 'sudo systemctl reload nginx'
+          ssh -p 22 -i /tmp/.ssh/github-actions root@102.127.29.15 'sudo systemctl reload nginx'
