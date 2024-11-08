@@ -3,7 +3,7 @@ name: Deploy React Vite App to Server
 on:
   push:
     branches:
-      - chakra # Run this workflow only for the 'chakra' branch
+      - chakra  # Run this workflow only for the 'chakra' branch
 
 jobs:
   deploy:
@@ -15,19 +15,27 @@ jobs:
 
       - name: Set up SSH
         run: |
+          # Create SSH directory
           mkdir -p ~/.ssh
-    echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-    chmod 600 ~/.ssh/id_rsa  # Restrict permissions to only the owner
-    ssh-keyscan -t rsa 103.209.145.218 >> ~/.ssh/known_hosts
+
+          # Add the SSH private key from GitHub Secrets
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa  # Set correct permissions for the key
+
+          # Add the server to known_hosts to prevent interactive prompt
+          ssh-keyscan -t rsa 103.209.145.218 >> ~/.ssh/known_hosts
+
+      - name: Debug SSH Connection
+        run: ssh -vvv -i ~/.ssh/id_rsa root@103.209.145.218 'echo "SSH connection successful"'
 
       - name: Deploy to Server
         run: |
           ssh -i ~/.ssh/id_rsa root@103.209.145.218 'bash -s' << 'EOF'
-
+          
           # Define app directory
           APP_DIR="/var/www/fota-frontend"
           DIST_DIR="$APP_DIR/dist"
-
+          
           # Ensure the app directory exists
           mkdir -p $APP_DIR
 
