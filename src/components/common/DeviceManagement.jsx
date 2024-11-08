@@ -132,7 +132,7 @@ const DeviceManagement = () => {
             <Table.ColumnHeader>District</Table.ColumnHeader>
             <Table.ColumnHeader>Block</Table.ColumnHeader>
             <Table.ColumnHeader>Panchayat</Table.ColumnHeader>
-            <Table.ColumnHeader>Update Status</Table.ColumnHeader>
+            <Table.ColumnHeader>Firmware Status</Table.ColumnHeader>
             <Table.ColumnHeader onClick={handleSelectAll} cursor={"pointer"}>
               <Text>Select All</Text>
             </Table.ColumnHeader>
@@ -146,7 +146,7 @@ const DeviceManagement = () => {
               <Table.Cell>{device.district}</Table.Cell>
               <Table.Cell>{device.block}</Table.Cell>
               <Table.Cell>{device.panchayat}</Table.Cell>
-              <Table.Cell>{device.updateStatus || "-"}</Table.Cell>
+              <Table.Cell>{device.firmwareStatus || "-"}</Table.Cell>
               <Table.Cell>
                 <Checkbox
                   colorPalette={"green"}
