@@ -48,20 +48,25 @@ jobs:
       # Step 8: Add the server's SSH key to known hosts
       - name: Add Server to Known Hosts
         run: |
-          ssh-keyscan -p 22 -H 102.127.29.15 >> /tmp/.ssh/known_hosts
+          touch /tmp/.ssh/known_hosts
+          ssh-keyscan -p 22 -H 102.127.29.15 >> /tmp/.ssh/known_hosts || exit 1
           chmod 644 /tmp/.ssh/known_hosts
 
-      # Step 9: Test SSH connection to the server
+      # Step 9: Check Known Hosts Content for debugging
+      - name: Check Known Hosts Content
+        run: cat /tmp/.ssh/known_hosts
+
+      # Step 10: Test SSH connection to the server
       - name: Test SSH Connection
         run: ssh -p 22 -i /tmp/.ssh/github-actions root@102.127.29.15 "echo SSH connection successful"
 
-      # Step 10: Deploy to the server using rsync
+      # Step 11: Deploy to the server using rsync
       - name: Deploy to server
         run: |
           rsync -avz -e "ssh -p 22 -i /tmp/.ssh/github-actions" \
             dist/ root@102.127.29.15:/var/www/html/
 
-      # Step 11: Reload Nginx to serve the updated app
+      # Step 12: Reload Nginx to serve the updated app
       - name: Reload Nginx
         run: |
           ssh -p 22 -i /tmp/.ssh/github-actions root@102.127.29.15 'sudo systemctl reload nginx'
