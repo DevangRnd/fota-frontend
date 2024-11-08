@@ -3,7 +3,7 @@ name: Deploy Vite React App to Server
 on:
   push:
     branches:
-      - main  # Trigger on pushes to the main branch
+      - chakra  # Trigger on pushes to the chakra branch
 
 jobs:
   deploy:
@@ -13,6 +13,8 @@ jobs:
       # Checkout the repository code
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          ref: chakra  # Ensure it's using the chakra branch
 
       # Set up SSH for server access
       - name: Set up SSH
@@ -44,4 +46,4 @@ jobs:
       # Deploy to the server
       - name: Deploy to server
         run: |
-          ssh root@103.209.145.218 "cd /var/www/my-app && git pull && npm install && npm run build && rm -rf /var/www/my-app/dist/* && cp -r /var/www/my-app/build/* /var/www/my-app/dist/"
+          ssh root@103.209.145.218 "cd /var/www/fota-frontend && git pull && npm install && npm run build && rm -rf /var/www/fota-frontend/dist/* && cp -r /var/www/fota-frontend/build/* /var/www/fota-frontend/dist/"
