@@ -1,0 +1,56 @@
+name: Deploy React Vite App to Server
+
+on:
+  push:
+    branches:
+      - chakra # Run this workflow only for the 'chakra' branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -t rsa 103.209.145.218 >> ~/.ssh/known_hosts
+
+      - name: Deploy to Server
+        run: |
+          ssh -i ~/.ssh/id_rsa root@103.209.145.218 'bash -s' << 'EOF'
+
+          # Define app directory
+          APP_DIR="/var/www/fota-frontend"
+          DIST_DIR="$APP_DIR/dist"
+
+          # Ensure the app directory exists
+          mkdir -p $APP_DIR
+
+          # Change to the app directory
+          cd $APP_DIR
+
+          # Pull the latest code from the 'chakra' branch
+          if [ -d ".git" ]; then
+              git fetch origin
+              git reset --hard origin/chakra
+          else
+              git clone -b chakra https://github.com/your-username/your-repo-name.git .
+          fi
+
+          # Build the Vite app
+          npm install
+          npm run build
+
+          # Ensure the 'dist' directory has the correct permissions for Nginx
+          chown -R www-data:www-data $DIST_DIR
+          chmod -R 755 $DIST_DIR
+
+          # Optional: Restart Nginx to refresh the server if needed
+          systemctl restart nginx
+
+          EOF
