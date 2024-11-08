@@ -16,9 +16,9 @@ jobs:
       - name: Set up SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -t rsa 103.209.145.218 >> ~/.ssh/known_hosts
+    echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+    chmod 600 ~/.ssh/id_rsa  # Restrict permissions to only the owner
+    ssh-keyscan -t rsa 103.209.145.218 >> ~/.ssh/known_hosts
 
       - name: Deploy to Server
         run: |
