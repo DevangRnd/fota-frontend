@@ -46,7 +46,7 @@ const Navbar = () => {
     navigate("/login");
     toaster.create({
       title: "Logged Out Successfully",
-      duration: 3000,
+      duration: 3500,
     });
   };
 
