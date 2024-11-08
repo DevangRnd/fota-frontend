@@ -25,7 +25,10 @@ jobs:
         run: npm run build
 
       - name: Create SSH Directory
-        run: mkdir -p /tmp/.ssh
+        run: |
+          mkdir -p /tmp/.ssh
+          chmod 700 /tmp/.ssh
+        shell: bash
 
       - name: Add SSH Private Key
         run: |
@@ -36,7 +39,9 @@ jobs:
         run: chmod 600 /tmp/.ssh/github-actions
 
       - name: Add Server to Known Hosts
-        run: ssh-keyscan -p 22 -H 102.127.29.15 >> /tmp/.ssh/known_hosts
+        run: |
+          ssh-keyscan -p 22 -H 102.127.29.15 >> /tmp/.ssh/known_hosts
+          chmod 644 /tmp/.ssh/known_hosts
 
       - name: Test SSH Connection
         run: ssh -p 22 -i /tmp/.ssh/github-actions root@102.127.29.15 "echo SSH connection successful"
