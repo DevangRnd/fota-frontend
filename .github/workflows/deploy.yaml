@@ -24,28 +24,28 @@ jobs:
       - name: Build application
         run: npm run build
 
-      - name: Create .ssh directory
-        run: mkdir -p ~/.ssh
+      - name: Create SSH Directory
+        run: mkdir -p /home/runner/.ssh
 
       - name: Add SSH Private Key
         run: |
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/github-actions
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' > /home/runner/.ssh/github-actions
         shell: bash
 
       - name: Set SSH Key Permissions
-        run: chmod 600 ~/.ssh/github-actions
+        run: chmod 600 /home/runner/.ssh/github-actions
 
       - name: Add Server to Known Hosts
-        run: ssh-keyscan -p 22 -H 102.127.29.15 >> ~/.ssh/known_hosts
+        run: ssh-keyscan -p 22 -H 102.127.29.15 >> /home/runner/.ssh/known_hosts
 
       - name: Test SSH Connection
-        run: ssh -p 22 -i ~/.ssh/github-actions root@102.127.29.15 "echo SSH connection successful"
+        run: ssh -p 22 -i /home/runner/.ssh/github-actions root@102.127.29.15 "echo SSH connection successful"
 
       - name: Deploy to server
         run: |
-          rsync -avz -e "ssh -p 22 -i ~/.ssh/github-actions" \
+          rsync -avz -e "ssh -p 22 -i /home/runner/.ssh/github-actions" \
             dist/ root@102.127.29.15:/var/www/html/
 
       - name: Reload Nginx
         run: |
-          ssh -p 22 -i ~/.ssh/github-actions root@102.127.29.15 'sudo systemctl reload nginx'
+          ssh -p 22 -i /home/runner/.ssh/github-actions root@102.127.29.15 'sudo systemctl reload nginx'
