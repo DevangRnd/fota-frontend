@@ -43,7 +43,28 @@ jobs:
         run: |
           npm run build
 
-      # Deploy to the server
+      # Deploy to server
       - name: Deploy to server
         run: |
-          ssh root@103.209.145.218 "cd /var/www/fota-frontend && git pull && npm install && npm run build && rm -rf /var/www/fota-frontend/dist/* && cp -r /var/www/fota-frontend/build/* /var/www/fota-frontend/dist/"
+          ssh root@103.209.145.218 << 'EOF'
+            cd /var/www/fota-frontend
+
+            # Discard any local changes and reset to the latest commit from the chakra branch
+            git reset --hard
+
+            # Pull the latest code from the chakra branch
+            git pull origin chakra
+
+            # Install dependencies (if needed)
+            npm install
+
+            # Build the app (if needed)
+            npm run build
+
+            # Remove old build files and copy the new build files
+            rm -rf /var/www/fota-frontend/dist/*
+            cp -r /var/www/fota-frontend/build/* /var/www/fota-frontend/dist/
+
+            # Restart Nginx (optional, in case server needs to serve new build)
+            sudo systemctl restart nginx
+          EOF
