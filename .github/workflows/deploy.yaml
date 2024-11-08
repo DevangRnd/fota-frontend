@@ -27,15 +27,18 @@ jobs:
       - name: Setup SSH key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/github-actions
+          chmod 600 ~/.ssh/github-actions
           ssh-keyscan -p 22 -H 102.127.29.15 >> ~/.ssh/known_hosts
+
+      - name: Test SSH Connection
+        run: ssh -p 22 -i ~/.ssh/github-actions root@102.127.29.15 "echo SSH connection successful"
 
       - name: Deploy to server
         run: |
-          rsync -avz -e "ssh -p 22 -i ~/.ssh/deploy_key" \
+          rsync -avz -e "ssh -p 22 -i ~/.ssh/github-actions" \
             dist/ root@102.127.29.15:/var/www/html/
 
       - name: Reload Nginx
         run: |
-          ssh -p 22 -i ~/.ssh/deploy_key root@102.127.29.15 'sudo systemctl reload nginx'
+          ssh -p 22 -i ~/.ssh/github-actions root@102.127.29.15 'sudo systemctl reload nginx'
