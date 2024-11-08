@@ -54,6 +54,7 @@ const Navbar = () => {
     return username ? username.slice(0, 2).toUpperCase() : "U";
   };
 
+  // eslint-disable-next-line react/prop-types
   const NavItems = ({ mobile = false }) => (
     <Flex
       direction={mobile ? "column" : "row"}
