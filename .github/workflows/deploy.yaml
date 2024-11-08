@@ -26,31 +26,35 @@ jobs:
 
       - name: Create SSH Directory
         run: |
-          mkdir -p /tmp/.ssh
-          chmod 700 /tmp/.ssh
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
         shell: bash
 
       - name: Add SSH Private Key
         run: |
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' > /tmp/.ssh/github-actions
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/github-actions
+          chmod 600 ~/.ssh/github-actions
         shell: bash
-
-      - name: Set SSH Key Permissions
-        run: chmod 600 /tmp/.ssh/github-actions
 
       - name: Add Server to Known Hosts
         run: |
-          ssh-keyscan -p 22 -H 102.127.29.15 >> /tmp/.ssh/known_hosts
-          chmod 644 /tmp/.ssh/known_hosts
+          ssh-keyscan -p 22 -H 102.127.29.15 >> ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+        shell: bash
+
+      - name: Add SSH Public Key to Authorized Keys (Server Side)
+        run: |
+          ssh -p 22 -i ~/.ssh/github-actions root@102.127.29.15 "mkdir -p ~/.ssh && echo '${{ secrets.SSH_PUBLIC_KEY }}' >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys"
+        shell: bash
 
       - name: Test SSH Connection
-        run: ssh -p 22 -i /tmp/.ssh/github-actions root@102.127.29.15 "echo SSH connection successful"
+        run: ssh -p 22 -i ~/.ssh/github-actions root@102.127.29.15 "echo SSH connection successful"
 
       - name: Deploy to server
         run: |
-          rsync -avz -e "ssh -p 22 -i /tmp/.ssh/github-actions" \
+          rsync -avz -e "ssh -p 22 -i ~/.ssh/github-actions" \
             dist/ root@102.127.29.15:/var/www/html/
 
       - name: Reload Nginx
         run: |
-          ssh -p 22 -i /tmp/.ssh/github-actions root@102.127.29.15 'sudo systemctl reload nginx'
+          ssh -p 22 -i ~/.ssh/github-actions root@102.127.29.15 'sudo systemctl reload nginx'
