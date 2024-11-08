@@ -49,8 +49,12 @@ jobs:
       - name: Add Server to Known Hosts
         run: |
           touch /tmp/.ssh/known_hosts
-          ssh-keyscan -p 22 -H 102.127.29.15 >> /tmp/.ssh/known_hosts || exit 1
+          if ! ssh-keyscan -p 22 -H 102.127.29.15 >> /tmp/.ssh/known_hosts; then
+            echo "ssh-keyscan failed, please check network or server availability."
+            exit 1
+          fi
           chmod 644 /tmp/.ssh/known_hosts
+        shell: bash
 
       # Step 9: Check Known Hosts Content for debugging
       - name: Check Known Hosts Content
@@ -58,7 +62,7 @@ jobs:
 
       # Step 10: Test SSH connection to the server
       - name: Test SSH Connection
-        run: ssh -p 22 -i /tmp/.ssh/github-actions root@102.127.29.15 "echo SSH connection successful"
+        run: ssh -o StrictHostKeyChecking=no -p 22 -i /tmp/.ssh/github-actions root@102.127.29.15 "echo SSH connection successful"
 
       # Step 11: Deploy to the server using rsync
       - name: Deploy to server
