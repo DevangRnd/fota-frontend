@@ -3,7 +3,7 @@ name: Deploy Vite App
 on:
   push:
     branches:
-      - chakra # or your default branch
+      - chakra
   pull_request:
     branches:
       - chakra
@@ -25,26 +25,17 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Check if dist directory exists before build
-        run: |
-          echo "Checking if dist/ exists before build"
-          ls -la || true
-
       - name: Build the Vite app
         run: |
           echo "Running npm run build"
           npm run build
           echo "Build completed"
+          ls -la dist/
 
-      - name: Check if dist directory exists after build
-        run: |
-          echo "Checking if dist/ exists after build"
-          ls -la dist/ || echo "dist/ does not exist"
-
-      - name: Deploy to production server
+      - name: Deploy and configure server
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          DEPLOY_PATH: /var/www/fota-frontend/
+          DEPLOY_PATH: /var/www/fota-frontend/dist # Changed to match Nginx config
           SERVER_IP: 103.209.145.218
         run: |
           # Setup SSH key
@@ -52,9 +43,27 @@ jobs:
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
 
+          # Create directory if it doesn't exist
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@$SERVER_IP "mkdir -p $DEPLOY_PATH"
+
           # Deploy using rsync
           rsync -avz -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
             dist/ root@$SERVER_IP:$DEPLOY_PATH
             
-          # Restart Nginx after deployment
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@$SERVER_IP "systemctl restart nginx"
+          # Set permissions and restart Nginx
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@$SERVER_IP "
+            # Set proper permissions
+            chown -R www-data:www-data $DEPLOY_PATH
+            chmod -R 755 $DEPLOY_PATH
+            
+            # Test Nginx config
+            nginx -t && systemctl restart nginx
+            
+            # Show deployed files
+            echo 'Deployed files:'
+            ls -la $DEPLOY_PATH
+            
+            # Show index.html content to verify
+            echo 'Index.html exists:'
+            ls -la $DEPLOY_PATH/index.html
+          "
