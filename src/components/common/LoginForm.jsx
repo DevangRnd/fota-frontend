@@ -3,7 +3,6 @@ import {
   Input,
   Button,
   Stack,
-  Spinner,
   Heading,
   Text,
   Flex,
@@ -26,67 +25,118 @@ const LoginForm = () => {
   };
 
   return (
-    <Box
-      h="100vh"
-      w="100%"
-      display="flex"
-      justifyContent="center"
+    <Flex
+      height="100vh"
       alignItems="center"
-      // background={"lightblue"}
-      bgGradient={"to-r"}
-      gradientFrom={"blue.300"}
-      gradientVia={"purple.100"}
-      gradientTo={"pink.300"}
+      justifyContent="center"
       position="relative"
-      overflow="hidden"
+      bgGradient="linear(to-r, blue.600, purple.600, pink.600)"
+      bgSize="cover"
+      bgPosition="center"
+      _before={{
+        content: `""`,
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: "rgba(0, 0, 0, 0.4)", // Semi-transparent overlay
+        zIndex: 0,
+      }}
     >
-      <Box w="sm" bg="lightsalmon" p="8" rounded="lg" shadow="lg" zIndex="1">
-        <Stack spacing={4} align="center" mb="4">
-          <Heading size="2xl" color="whiteAlpha.950">
-            Sign in
-          </Heading>
-          <Text color="gray.500">Log In With Your Credentials</Text>
-        </Stack>
-
+      <Box
+        width="100%"
+        maxWidth="400px"
+        bg={{ base: "white", _dark: "gray.800" }}
+        p="6"
+        rounded="lg"
+        shadow="lg"
+        border="1px"
+        borderColor={{ base: "gray.200", _dark: "gray.700" }}
+        zIndex={1}
+      >
         <Stack spacing={4}>
+          <Heading
+            size="lg"
+            textAlign="center"
+            color={{ base: "gray.800", _dark: "white" }}
+          >
+            Sign In
+          </Heading>
+          <Text
+            textAlign="center"
+            color={{ base: "gray.600", _dark: "gray.400" }}
+          >
+            Log In with Your Credentials
+          </Text>
           <Box>
-            <Text mb="1" fontSize="sm" color="gray.600">
+            <Text
+              mb="1"
+              fontSize="sm"
+              color={{ base: "gray.600", _dark: "gray.400" }}
+            >
               Username
             </Text>
             <Input
               value={username}
               onChange={(e) => setUserName(e.target.value)}
-              variant="filled"
+              variant="outline"
+              placeholder="Enter your username"
+              focusBorderColor="purple.500"
+              _dark={{
+                bg: "gray.700",
+                borderColor: "gray.600",
+                color: "white",
+              }}
             />
           </Box>
-
           <Box>
-            <Text mb="1" fontSize="sm" color="gray.600">
+            <Text
+              mb="1"
+              fontSize="sm"
+              color={{ base: "gray.600", _dark: "gray.400" }}
+            >
               Password
             </Text>
             <Input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              variant="filled"
+              variant="outline"
+              placeholder="Enter your password"
+              focusBorderColor="purple.500"
+              _dark={{
+                bg: "gray.700",
+                borderColor: "gray.600",
+                color: "white",
+              }}
             />
           </Box>
+          <Flex justifyContent="center" mt="4">
+            {isLoading ? (
+              <Button
+                disabled
+                colorScheme="purple"
+                variant="solid"
+                width="full"
+                isLoading
+              >
+                Logging In...
+              </Button>
+            ) : (
+              <Button
+                onClick={handleLogin}
+                colorScheme="purple"
+                variant="solid"
+                width="full"
+              >
+                Sign In
+              </Button>
+            )}
+          </Flex>
         </Stack>
-
-        <Flex mt="6" justifyContent="flex-end">
-          {isLoading ? (
-            <Button disabled colorScheme="purple" variant="solid">
-              <Spinner mr={2} />
-              Logging In..
-            </Button>
-          ) : (
-            <Button onClick={handleLogin} colorScheme="purple" variant="solid">
-              Sign in
-            </Button>
-          )}
-        </Flex>
       </Box>
-    </Box>
+    </Flex>
   );
 };
 
