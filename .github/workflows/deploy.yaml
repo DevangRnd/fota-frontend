@@ -3,10 +3,10 @@ name: Deploy Vite App
 on:
   push:
     branches:
-      - chakra # or your default branch
+      - main # or your default branch
   pull_request:
     branches:
-      - chakra
+      - main
 
 jobs:
   build-and-deploy:
@@ -22,26 +22,22 @@ jobs:
           node-version: "18"
           cache: "npm"
 
+      - name: Clean local environment
+        run: |
+          rm -rf dist
+          rm -rf node_modules
+          echo "Cleaned local build artifacts"
+
       - name: Install dependencies
         run: npm install
-
-      - name: Check if dist directory exists before build
-        run: |
-          echo "Checking if dist/ exists before build"
-          ls -la || true
 
       - name: Build the Vite app
         run: |
           echo "Running npm run build"
           npm run build
           echo "Build completed"
+          ls -la dist/
 
-      - name: Check if dist directory exists after build
-        run: |
-          echo "Checking if dist/ exists after build"
-          ls -la dist/ || echo "dist/ does not exist"
-
-      # Setup SSH and deploy in one step since the environment is ephemeral
       - name: Deploy to production server
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
@@ -53,6 +49,9 @@ jobs:
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
 
+          # Clean remote directory first
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@$SERVER_IP "rm -rf $DEPLOY_PATH/*"
+
           # Deploy using rsync
-          rsync -avz -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
+          rsync -avz --delete -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
             dist/ root@$SERVER_IP:$DEPLOY_PATH
