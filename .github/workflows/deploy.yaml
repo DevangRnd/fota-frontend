@@ -3,10 +3,10 @@ name: Deploy Vite App
 on:
   push:
     branches:
-      - main # or your default branch
+      - chakra # or your default branch
   pull_request:
     branches:
-      - main
+      - chakra
 
 jobs:
   build-and-deploy:
