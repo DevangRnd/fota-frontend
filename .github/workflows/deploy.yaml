@@ -1,0 +1,45 @@
+name: Deploy Vite App
+
+on:
+  push:
+    branches:
+      - chakra # Adjust this if you deploy from a different branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "16" # Replace with your Node.js version if different
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build the Vite app
+        run: npm run build
+
+      - name: Upload production-ready files to server
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          # Set up SSH key
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+
+          # Sync the build files to the server's target directory
+          rsync -avz -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
+            dist/ root@103.209.145.218:/var/www/fota-frontend/
+
+      - name: Restart Nginx
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@103.209.145.218 \
+            "sudo systemctl restart nginx"
