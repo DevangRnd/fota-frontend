@@ -28,7 +28,7 @@ jobs:
       - name: Check if dist directory exists before build
         run: |
           echo "Checking if dist/ exists before build"
-          ls -la || true  # This step will show the project root content
+          ls -la || true  # This step will show the project root content so be it
 
       # Build the Vite app
       - name: Build the Vite app
