@@ -18,7 +18,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "16" # Adjust Node.js version based on your needs
+          node-version: "18" # Adjust Node.js version based on your needs
 
       # Install dependencies
       - name: Install dependencies
@@ -31,7 +31,7 @@ jobs:
       # Deploy to the server
       - name: Deploy to Server
         run: |
-          rsync -avz --delete dist/ root@103.209.145.218:/var/www/fota-frontend
+          rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/deploy_key" dist/ root@103.209.145.218:/var/www/fota-frontend
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
 
