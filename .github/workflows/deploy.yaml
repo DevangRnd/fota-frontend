@@ -1,61 +1,44 @@
-name: Deploy Vite App
+name: CI/CD Pipeline
 
 on:
   push:
     branches:
-      - chakra # Adjust if deploying from a different branch
+      - chakra # Trigger deployment when pushing to the 'main' branch
 
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
+  build:
+    runs-on: ubuntu-latest # This will use the latest Ubuntu image for the GitHub runner
 
     steps:
+      # Checkout the code
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - name: Clear Node modules (optional for a fresh build)
-        run: rm -rf node_modules
-
+      # Set up Node.js (use the appropriate version for your project)
       - name: Set up Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
-          node-version: "18" # Updated to Node.js 18
+          node-version: "16" # Adjust Node.js version based on your needs
 
+      # Install dependencies
       - name: Install dependencies
         run: npm install
 
-      - name: Check if dist directory exists before build
-        run: |
-          echo "Checking if dist/ exists before build"
-          ls -la || true  # This step will show the project root content
+      # Run the build process
+      - name: Build the project
+        run: npm run build
 
-      - name: Build the Vite app
+      # Deploy to the server
+      - name: Deploy to Server
         run: |
-          echo "Running npm run build"
-          npm run build
-          echo "Build completed"
-
-      - name: Check if dist directory exists after build
-        run: |
-          echo "Checking if dist/ exists after build"
-          ls -la dist/ || echo "dist/ does not exist"
-
-      - name: Upload production-ready files to server
+          rsync -avz --delete dist/ root@103.209.145.218:/var/www/fota-frontend
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-        run: |
-          # Set up SSH key
-          mkdir -p ~/.ssh
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
 
-          # Sync the build files to the correct target directory
-          rsync -avz -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
-            dist/ root@103.209.145.218:/var/www/fota-frontend/
-
+      # Restart Nginx to serve the updated build
       - name: Restart Nginx
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
           ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@103.209.145.218 \
             "sudo systemctl restart nginx"
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
