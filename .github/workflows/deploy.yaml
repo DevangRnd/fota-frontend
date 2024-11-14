@@ -24,14 +24,21 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Debug build output (list dist contents)
-        run: ls -la dist/ # This will list the build files to confirm they're being generated
+      - name: Check if dist directory exists before build
+        run: |
+          echo "Checking if dist/ exists before build"
+          ls -la || true  # This step will show the project root content
 
       - name: Build the Vite app
-        run: npm run build
+        run: |
+          echo "Running npm run build"
+          npm run build
+          echo "Build completed"
 
-      - name: Debug build output (after build)
-        run: ls -la dist/ # This will list the build files after the build process to check if changes are applied
+      - name: Check if dist directory exists after build
+        run: |
+          echo "Checking if dist/ exists after build"
+          ls -la dist/ || echo "dist/ does not exist"
 
       - name: Upload production-ready files to server
         env:
@@ -42,7 +49,7 @@ jobs:
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
 
-          # Sync the build files to the server's target directory
+          # Sync the build files to the correct target directory
           rsync -avz -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
             dist/ root@103.209.145.218:/var/www/fota-frontend/
 
