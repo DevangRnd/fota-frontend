@@ -3,7 +3,7 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - chakra # Trigger deployment when pushing to the 'main' branch
+      - main # Trigger deployment when pushing to the 'main' branch
 
 jobs:
   build:
@@ -24,16 +24,38 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      # Run the build process
-      - name: Build the project
-        run: npm run build
-
-      # Deploy to the server
-      - name: Deploy to Server
+      # Check if dist directory exists before build
+      - name: Check if dist directory exists before build
         run: |
+          echo "Checking if dist/ exists before build"
+          ls -la || true  # This step will show the project root content
+
+      # Build the Vite app
+      - name: Build the Vite app
+        run: |
+          echo "Running npm run build"
+          npm run build
+          echo "Build completed"
+
+      # Check if dist directory exists after build
+      - name: Check if dist directory exists after build
+        run: |
+          echo "Checking if dist/ exists after build"
+          ls -la dist/ || echo "dist/ does not exist"
+
+      # Setup SSH key and known hosts
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H 103.209.145.218 >> ~/.ssh/known_hosts
+
+      # Upload production-ready files to the server
+      - name: Upload production-ready files to server
+        run: |
+          echo "Syncing files to the server"
           rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/deploy_key" dist/ root@103.209.145.218:/var/www/fota-frontend
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
 
       # Restart Nginx to serve the updated build
       - name: Restart Nginx
