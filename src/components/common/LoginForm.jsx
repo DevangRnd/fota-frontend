@@ -6,6 +6,7 @@ import {
   Heading,
   Text,
   Flex,
+  Spinner,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -45,6 +46,8 @@ const LoginForm = () => {
       }}
     >
       <Box
+        as={"form"}
+        onSubmit={handleLogin}
         width="100%"
         maxWidth="400px"
         bg={{ base: "white", _dark: "gray.800" }}
@@ -82,7 +85,6 @@ const LoginForm = () => {
               onChange={(e) => setUserName(e.target.value)}
               variant="outline"
               placeholder="Enter your username"
-              focusBorderColor="purple.500"
               _dark={{
                 bg: "gray.700",
                 borderColor: "gray.600",
@@ -104,7 +106,6 @@ const LoginForm = () => {
               onChange={(e) => setPassword(e.target.value)}
               variant="outline"
               placeholder="Enter your password"
-              focusBorderColor="purple.500"
               _dark={{
                 bg: "gray.700",
                 borderColor: "gray.600",
@@ -121,6 +122,7 @@ const LoginForm = () => {
                 width="full"
                 isLoading
               >
+                <Spinner mr={2} />
                 Logging In...
               </Button>
             ) : (
