@@ -3,7 +3,7 @@ name: Deploy Vite App
 on:
   push:
     branches:
-      - chakra # or your default branch
+      - chakra
   pull_request:
     branches:
       - chakra
@@ -11,7 +11,6 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -55,3 +54,21 @@ jobs:
           # Deploy using rsync
           rsync -avz --delete -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
             dist/ root@$SERVER_IP:$DEPLOY_PATH
+
+          # Set proper permissions and ownership
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@$SERVER_IP "
+            chown -R www-data:www-data $DEPLOY_PATH
+            chmod -R 755 $DEPLOY_PATH
+            
+            # Test Nginx configuration
+            nginx -t
+            
+            # Restart Nginx if config test passes
+            systemctl restart nginx
+            
+            # Check Nginx status
+            systemctl status nginx
+            
+            # Check error logs
+            tail -n 50 /var/log/nginx/error.log
+          "
