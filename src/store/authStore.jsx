@@ -45,10 +45,10 @@ const useAuthStore = create(
             isLoading: false,
             error: error.response?.data?.message || "Login failed",
           });
-          console.log(error.response.data.message);
+
           toaster.create({
             title:
-              error.response.data.message || "Error occured while logging in",
+              error.response?.data?.message || "Error occured while logging in",
             type: "error",
             duration: 3500,
           });

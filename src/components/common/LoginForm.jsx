@@ -32,25 +32,17 @@ const LoginForm = () => {
       display="flex"
       justifyContent="center"
       alignItems="center"
-      bgGradient="linear(to-br, blue.300, purple.500, pink.400)"
+      // background={"lightblue"}
+      bgGradient={"to-r"}
+      gradientFrom={"blue.300"}
+      gradientVia={"purple.100"}
+      gradientTo={"pink.300"}
       position="relative"
       overflow="hidden"
-      _before={{
-        content: `""`,
-        position: "absolute",
-        top: "-50%",
-        right: "-50%",
-        bottom: "-50%",
-        left: "-50%",
-        bgGradient: "radial(blue.400, purple.500, pink.300)",
-        filter: "blur(200px)",
-        opacity: 0.4,
-        animation: "moveBackground 20s linear infinite",
-      }}
     >
-      <Box w="sm" bg="whiteAlpha.900" p="8" rounded="lg" shadow="lg" zIndex="1">
+      <Box w="sm" bg="lightsalmon" p="8" rounded="lg" shadow="lg" zIndex="1">
         <Stack spacing={4} align="center" mb="4">
-          <Heading size="md" color="gray.700">
+          <Heading size="2xl" color="whiteAlpha.950">
             Sign in
           </Heading>
           <Text color="gray.500">Log In With Your Credentials</Text>
@@ -65,7 +57,6 @@ const LoginForm = () => {
               value={username}
               onChange={(e) => setUserName(e.target.value)}
               variant="filled"
-              focusRing="purple.500"
             />
           </Box>
 
@@ -78,7 +69,6 @@ const LoginForm = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               variant="filled"
-              focusBorderColor="purple.500"
             />
           </Box>
         </Stack>
@@ -96,16 +86,6 @@ const LoginForm = () => {
           )}
         </Flex>
       </Box>
-
-      <style>
-        {`
-          @keyframes moveBackground {
-            0% { transform: translate(0, 0); }
-            50% { transform: translate(50px, 50px); }
-            100% { transform: translate(0, 0); }
-          }
-        `}
-      </style>
     </Box>
   );
 };
