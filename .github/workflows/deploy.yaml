@@ -1,0 +1,58 @@
+name: Deploy Vite App
+
+on:
+  push:
+    branches:
+      - chakra # or your default branch
+  pull_request:
+    branches:
+      - chakra
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Check if dist directory exists before build
+        run: |
+          echo "Checking if dist/ exists before build"
+          ls -la || true
+
+      - name: Build the Vite app
+        run: |
+          echo "Running npm run build"
+          npm run build
+          echo "Build completed"
+
+      - name: Check if dist directory exists after build
+        run: |
+          echo "Checking if dist/ exists after build"
+          ls -la dist/ || echo "dist/ does not exist"
+
+      # Setup SSH and deploy in one step since the environment is ephemeral
+      - name: Deploy to production server
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          DEPLOY_PATH: /var/www/fota-frontend/
+          SERVER_IP: 103.209.145.218
+        run: |
+          # Setup SSH key
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+
+          # Deploy using rsync
+          rsync -avz -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
+            dist/ root@$SERVER_IP:$DEPLOY_PATH
