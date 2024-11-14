@@ -1,66 +1,58 @@
-name: CI/CD Pipeline
+name: Deploy Vite App
 
 on:
   push:
     branches:
-      - main # Trigger deployment when pushing to the 'main' branch
+      - main # or your default branch
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  build:
-    runs-on: ubuntu-latest # This will use the latest Ubuntu image for the GitHub runner
+  build-and-deploy:
+    runs-on: ubuntu-latest
 
     steps:
-      # Checkout the code
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      # Set up Node.js (use the appropriate version for your project)
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: "18" # Adjust Node.js version based on your needs
+          node-version: "18"
+          cache: "npm"
 
-      # Install dependencies
       - name: Install dependencies
         run: npm install
 
-      # Check if dist directory exists before build
       - name: Check if dist directory exists before build
         run: |
           echo "Checking if dist/ exists before build"
-          ls -la || true  # This step will show the project root content
+          ls -la || true
 
-      # Build the Vite app
       - name: Build the Vite app
         run: |
           echo "Running npm run build"
           npm run build
           echo "Build completed"
 
-      # Check if dist directory exists after build
       - name: Check if dist directory exists after build
         run: |
           echo "Checking if dist/ exists after build"
           ls -la dist/ || echo "dist/ does not exist"
 
-      # Setup SSH key and known hosts
-      - name: Setup SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H 103.209.145.218 >> ~/.ssh/known_hosts
-
-      # Upload production-ready files to the server
-      - name: Upload production-ready files to server
-        run: |
-          echo "Syncing files to the server"
-          rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/deploy_key" dist/ root@103.209.145.218:/var/www/fota-frontend
-
-      # Restart Nginx to serve the updated build
-      - name: Restart Nginx
-        run: |
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@103.209.145.218 \
-            "sudo systemctl restart nginx"
+      # Setup SSH and deploy in one step since the environment is ephemeral
+      - name: Deploy to production server
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          DEPLOY_PATH: /var/www/fota-frontend/
+          SERVER_IP: 103.209.145.218
+        run: |
+          # Setup SSH key
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+
+          # Deploy using rsync
+          rsync -avz -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
+            dist/ root@$SERVER_IP:$DEPLOY_PATH
