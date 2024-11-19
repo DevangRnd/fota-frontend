@@ -124,6 +124,7 @@ const Navbar = () => {
       borderColor="gray.200"
       bg="blue.500"
       backdropFilter="blur(10px)"
+      w={"100%"}
     >
       <Flex maxW="container.xl" mx="auto" h="14" px="4" alignItems="center">
         <Flex mr="4" alignItems="center" gap="2">

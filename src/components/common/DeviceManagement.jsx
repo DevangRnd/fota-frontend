@@ -64,7 +64,7 @@ const DeviceManagement = () => {
   }
 
   return (
-    <Box w={"80%"} mx={"auto"} my={10}>
+    <Box w={"80%"} mx={"auto"} my={10} overflowX={"scroll"}>
       <Text as={"label"} my={2} htmlFor="select" fontSize={"xl"}>
         Select Firmware:
       </Text>
