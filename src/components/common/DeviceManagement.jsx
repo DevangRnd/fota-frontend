@@ -3,7 +3,7 @@ import { Box, Button, Spinner, Table, Text, Input } from "@chakra-ui/react";
 import { Checkbox } from "../ui/checkbox";
 import { Alert } from "../ui/alert";
 import useDeviceStore from "../../store/deviceStore";
-
+import { LuSearch } from "react-icons/lu";
 const DeviceManagement = () => {
   const {
     loading,
@@ -65,20 +65,21 @@ const DeviceManagement = () => {
 
   return (
     <Box w={"80%"} mx={"auto"} my={10} overflowX={"scroll"}>
-      <Text as={"label"} my={2} htmlFor="select" fontSize={"xl"}>
+      {/* <Text as={"label"} my={2} htmlFor="select" fontSize={"xl"}>
         Select Firmware:
-      </Text>
+      </Text> */}
       <Box
         id="select"
+        fontSize={"0.9rem"}
         as={"select"}
-        w={"full"}
+        w={"100%"}
         p={2}
         value={selectedFirmware}
         onChange={(e) => selectFirmware(e.target.value)}
         rounded={"md"}
       >
         <option value="" disabled>
-          -
+          Select Firmware
         </option>
         {firmwares.map((firmware) => (
           <option value={firmware.name} key={firmware._id}>
@@ -102,29 +103,43 @@ const DeviceManagement = () => {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
+        {filteredDevices.length > 10 && (
+          <Box
+            as={"select"}
+            p={2}
+            value={devicesPerPage}
+            onChange={(e) => setDevicesPerPage(Number(e.target.value))}
+            rounded={"md"}
+            fontSize={"0.9rem"}
+          >
+            <option value={10}>10 per page</option>
+            <option value={20}>20 per page</option>
+            <option value={50}>50 per page</option>
+          </Box>
+        )}
 
-        <Box
-          as={"select"}
-          p={2}
-          value={devicesPerPage}
-          onChange={(e) => setDevicesPerPage(Number(e.target.value))}
-          rounded={"md"}
-        >
-          <option value={10}>10 per page</option>
-          <option value={20}>20 per page</option>
-          <option value={50}>50 per page</option>
-        </Box>
         {/* <Button onClick={handleSelectAll}>Select All on Page</Button> */}
       </Box>
       {searchTerm.trim() !== "" ? (
-        <Alert variant={"subtle"} title={`Search Results for ${searchTerm}`} />
+        <Alert
+          variant={"subtle"}
+          title={`Search Results for -  ${searchTerm}`}
+          icon={<LuSearch />}
+        />
       ) : null}
       <Alert
         variant={"outline"}
         my={3}
         title={`No. Of Items: ${filteredDevices.length}`}
       />
-      <Table.Root size={"lg"} striped>
+
+      <Table.Root
+        size={"md"}
+        variant={"outline"}
+        interactive
+        showColumnBorder
+        stickyHeader
+      >
         <Table.Header>
           <Table.Row>
             <Table.ColumnHeader>Device ID</Table.ColumnHeader>

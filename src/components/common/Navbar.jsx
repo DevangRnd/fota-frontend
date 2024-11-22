@@ -66,12 +66,13 @@ const Navbar = () => {
         style={({ isActive }) => ({
           display: "flex",
           alignItems: "center",
-          gap: "8px",
-          padding: "8px 12px",
+          gap: "6px",
+          padding: "6px 12px",
           borderRadius: "6px",
           transition: "all 0.2s",
           background: isActive ? "var(--chakra-colors-white)" : "transparent",
           color: isActive ? "black" : "inherit",
+          fontSize: "1rem",
         })}
       >
         <Laptop size={18} />
@@ -83,12 +84,13 @@ const Navbar = () => {
         style={({ isActive }) => ({
           display: "flex",
           alignItems: "center",
-          gap: "8px",
-          padding: "8px 12px",
+          gap: "6px",
+          padding: "6px 12px",
           borderRadius: "6px",
           transition: "all 0.2s",
           background: isActive ? "var(--chakra-colors-white)" : "transparent",
           color: isActive ? "black" : "inherit",
+          fontSize: "1rem",
         })}
       >
         <Upload size={18} />
@@ -100,12 +102,13 @@ const Navbar = () => {
         style={({ isActive }) => ({
           display: "flex",
           alignItems: "center",
-          gap: "8px",
-          padding: "8px 12px",
+          gap: "6px",
+          padding: "6 px 12px",
           borderRadius: "6px",
           transition: "all 0.2s",
           background: isActive ? "var(--chakra-colors-white)" : "transparent",
           color: isActive ? "black" : "inherit",
+          fontSize: "1rem",
         })}
       >
         <BoxIcon size={18} />
