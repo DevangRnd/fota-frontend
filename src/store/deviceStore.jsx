@@ -45,7 +45,7 @@ const useDeviceStore = create((set, get) => ({
         : [...state.selectedDevices, deviceId],
     }));
   },
-
+  clearSelectedDevices: () => set({ selectedDevices: [] }),
   selectFirmware: (firmwareName) => {
     set({ selectedFirmware: firmwareName });
   },

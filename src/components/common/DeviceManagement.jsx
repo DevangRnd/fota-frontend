@@ -1,9 +1,21 @@
 import { useEffect, useState } from "react";
-import { Box, Button, Spinner, Table, Input } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Spinner,
+  Table,
+  Input,
+  Text,
+  Badge,
+  Field,
+  defineStyle,
+  Separator,
+} from "@chakra-ui/react";
 import { Checkbox } from "../ui/checkbox";
 import { Alert } from "../ui/alert";
 import useDeviceStore from "../../store/deviceStore";
-import { LuSearch } from "react-icons/lu";
+import { LuSearch, LuChevronLeft, LuChevronRight } from "react-icons/lu";
+
 import {
   DialogActionTrigger,
   DialogBody,
@@ -13,7 +25,13 @@ import {
   DialogTrigger,
   DialogContent,
 } from "../ui/dialog";
-
+import {
+  ActionBarRoot,
+  ActionBarContent,
+  ActionBarSelectionTrigger,
+  ActionBarSeparator,
+} from "../ui/action-bar";
+import TotalStats from "./TotalStats";
 const DeviceManagement = () => {
   const {
     loading,
@@ -24,8 +42,8 @@ const DeviceManagement = () => {
     selectedFirmware,
     selectDevice,
     selectFirmware,
-    buttonLoading,
     initiateUpdate,
+    clearSelectedDevices,
   } = useDeviceStore();
 
   // State for search, pagination, and items per page
@@ -105,15 +123,91 @@ const DeviceManagement = () => {
       </Box>
     );
   }
+  const floatingStyles = defineStyle({
+    pos: "absolute",
+    bg: "bg",
+    px: "0.5",
+    top: "-3",
+    insetStart: "2",
+    fontWeight: "normal",
+    pointerEvents: "none",
+    transition: "position",
+    _peerPlaceholderShown: {
+      color: "fg",
+      top: "2.5",
+      insetStart: "3",
+    },
+    _peerFocusVisible: {
+      color: "fg.muted",
+      top: "-3",
+      insetStart: "2",
+    },
+  });
 
   return (
     <Box w={"80%"} mx={"auto"} my={10}>
+      <TotalStats />
+
+      {/* Search and pagination controls */}
+      <Box
+        display={"grid"}
+        gridTemplateColumns={{ base: "1fr", lg: "repeat(3, 1fr)" }}
+        my={4}
+        gap={5}
+      >
+        <Field.Root>
+          <Box pos={"relative"} w={"full"}>
+            <Input
+              className="peer"
+              p={2}
+              rounded={"md"}
+              placeholder=""
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <Field.Label css={floatingStyles}>
+              Search across all fields
+            </Field.Label>
+          </Box>
+        </Field.Root>
+        {filteredDevices.length > 10 && (
+          <Box
+            as={"select"}
+            p={2}
+            value={devicesPerPage}
+            onChange={(e) => setDevicesPerPage(Number(e.target.value))}
+            rounded={"md"}
+            fontSize={"0.87rem"}
+          >
+            <Box as={"option"} value={10}>
+              10 per page
+            </Box>
+            <Box as={"option"} value={20}>
+              20 per page
+            </Box>
+            <Box as={"option"} value={50}>
+              50 per page
+            </Box>
+          </Box>
+        )}
+      </Box>
+
+      {searchTerm.trim() !== "" && (
+        <Alert
+          variant={"subtle"}
+          title={`Search Results for:- ${searchTerm} (${filteredDevices.length})`}
+          icon={<LuSearch />}
+          my={3}
+        />
+      )}
+
       <Box
         id="select"
         fontSize={"0.9rem"}
         as={"select"}
         w={"100%"}
         p={2}
+        my={3}
         value={selectedFirmware}
         onChange={(e) => selectFirmware(e.target.value)}
         rounded={"md"}
@@ -127,57 +221,13 @@ const DeviceManagement = () => {
           </option>
         ))}
       </Box>
-
-      {/* Search and pagination controls */}
-      <Box
-        display={"grid"}
-        gridTemplateColumns={{ base: "1fr", lg: "repeat(3, 1fr)" }}
-        my={4}
-        gap={5}
-      >
-        <Input
-          p={2}
-          rounded={"md"}
-          placeholder="Search across all fields"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        {filteredDevices.length > 10 && (
-          <Box
-            as={"select"}
-            p={2}
-            value={devicesPerPage}
-            onChange={(e) => setDevicesPerPage(Number(e.target.value))}
-            rounded={"md"}
-            fontSize={"0.9rem"}
-          >
-            <option value={10}>10 per page</option>
-            <option value={20}>20 per page</option>
-            <option value={50}>50 per page</option>
-          </Box>
-        )}
-      </Box>
-
-      {searchTerm.trim() !== "" && (
-        <Alert
-          variant={"subtle"}
-          title={`Search Results for - ${searchTerm}`}
-          icon={<LuSearch />}
-        />
-      )}
-      <Alert
-        variant={"outline"}
-        my={3}
-        title={`No. Of Items: ${filteredDevices.length}`}
-      />
-
       <Table.ScrollArea borderWidth={"1px"} maxW={"100%"}>
         <Table.Root
           size={"md"}
           variant={"outline"}
           interactive
           showColumnBorder
-          stickyHeader
+          colorPalette={"blue"}
         >
           <Table.Header>
             <Table.Row>
@@ -207,7 +257,23 @@ const DeviceManagement = () => {
                 <Table.Cell>{device.district}</Table.Cell>
                 <Table.Cell>{device.block}</Table.Cell>
                 <Table.Cell>{device.panchayat}</Table.Cell>
-                <Table.Cell>{device.firmwareStatus || "-"}</Table.Cell>
+                <Table.Cell>
+                  {device.firmwareStatus === "Null" && (
+                    <Badge variant={"solid"} colorPalette={"gray"}>
+                      {device.firmwareStatus}
+                    </Badge>
+                  )}{" "}
+                  {device.firmwareStatus.includes("Pending") && (
+                    <Badge variant={"solid"} colorPalette={"yellow"}>
+                      {device.firmwareStatus}
+                    </Badge>
+                  )}{" "}
+                  {device.firmwareStatus.includes("Completed") && (
+                    <Badge variant={"solid"} colorPalette={"green"}>
+                      {device.firmwareStatus}
+                    </Badge>
+                  )}{" "}
+                </Table.Cell>
               </Table.Row>
             ))}
           </Table.Body>
@@ -215,11 +281,27 @@ const DeviceManagement = () => {
       </Table.ScrollArea>
 
       {/* Pagination Controls */}
-      <Box display="flex" justifyContent={"center"} mt={4}>
+      <Box
+        display="flex"
+        justifyContent="flex-start"
+        mt={4}
+        alignItems="center"
+        flexWrap={"wrap"}
+      >
+        <Button
+          size={{ base: "xs", lg: "sm" }}
+          mx={1}
+          onClick={() => currentPage > 1 && paginate(currentPage - 1)}
+          disabled={currentPage === 1}
+          colorScheme="teal"
+          variant={"outline"}
+        >
+          <LuChevronLeft />
+        </Button>
         {generatePageNumbers().map((page, i) => (
           <Button
             key={i}
-            size={"sm"}
+            size={{ base: "xs", lg: "sm" }}
             mx={1}
             onClick={() => page !== "..." && paginate(page)}
             isActive={page === currentPage}
@@ -230,41 +312,84 @@ const DeviceManagement = () => {
             {page}
           </Button>
         ))}
-      </Box>
-
-      {buttonLoading ? (
-        <Button my={4} disabled color={"gray.400"}>
-          <Spinner /> Initiating Update
+        <Button
+          size={{ base: "xs", lg: "sm" }}
+          mx={1}
+          onClick={() => currentPage < totalPages && paginate(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          colorScheme="teal"
+          variant={"outline"}
+        >
+          <LuChevronRight />
         </Button>
-      ) : (
-        <DialogRoot size={"lg"} placement={"center"} motionPreset={"scale"}>
-          <DialogTrigger>
-            <Button
-              disabled={!selectedFirmware || selectedDevices.length === 0}
-              my={4}
-            >
-              Initiate Update
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader fontSize={"2xl"} fontWeight={"bold"}>
-              Please Confirm
-            </DialogHeader>
-            <DialogBody>
-              <p>
-                You are about to initiate update for {selectedDevices.length}{" "}
-                devices. With firmware version {firmwares.map((f) => f.name)}
-              </p>
-              <DialogFooter>
-                <DialogActionTrigger asChild>
-                  <Button variant={"outline"}>Cancel</Button>
-                </DialogActionTrigger>
-                <Button onClick={initiateUpdate}>Proceed</Button>
-              </DialogFooter>
-            </DialogBody>
-          </DialogContent>
-        </DialogRoot>
-      )}
+      </Box>
+      <ActionBarRoot
+        open={selectedDevices.length > 0}
+        closeOnInteractOutside={false}
+      >
+        <ActionBarContent>
+          <ActionBarSelectionTrigger>
+            {selectedDevices.length}
+          </ActionBarSelectionTrigger>
+          <ActionBarSeparator />
+
+          <Button
+            onClick={clearSelectedDevices}
+            variant={"outline"}
+            size={"sm"}
+            colorPalette={"red"}
+          >
+            Cancel
+          </Button>
+
+          <DialogRoot
+            size={"lg"}
+            placement={"center"}
+            motionPreset={"scale"}
+            role="alertdialog"
+          >
+            <DialogTrigger>
+              <Button
+                size={"sm"}
+                disabled={!selectedFirmware || selectedDevices.length === 0}
+                my={4}
+              >
+                Update
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader fontSize={"2xl"}>Please Confirm</DialogHeader>
+
+              <DialogBody>
+                <Text fontSize={"md"} py={2}>
+                  You are about to initiate update for {selectedDevices.length}{" "}
+                  devices. With firmware version {firmwares.map((f) => f.name)}
+                </Text>
+                <Separator />
+                <DialogFooter>
+                  <DialogActionTrigger asChild>
+                    <Button
+                      colorPalette={"red"}
+                      size={"sm"}
+                      variant={"outline"}
+                    >
+                      Cancel
+                    </Button>
+                  </DialogActionTrigger>
+                  <Button
+                    colorPalette={"green"}
+                    size={"sm"}
+                    variant={"subtle"}
+                    onClick={initiateUpdate}
+                  >
+                    Proceed
+                  </Button>
+                </DialogFooter>
+              </DialogBody>
+            </DialogContent>
+          </DialogRoot>
+        </ActionBarContent>
+      </ActionBarRoot>
     </Box>
   );
 };

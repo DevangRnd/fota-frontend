@@ -1,4 +1,12 @@
-import { Box, Button, Input, Text, Spinner, Flex } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Input,
+  Text,
+  Spinner,
+  Flex,
+  Badge,
+} from "@chakra-ui/react";
 import useUploadStore from "../../store/uploadStore";
 import {
   DialogBody,
@@ -9,6 +17,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
+import { CloudUpload } from "lucide-react";
 const UploadDevices = () => {
   const {
     file,
@@ -46,7 +55,7 @@ const UploadDevices = () => {
         maxW="md"
         textAlign="center"
       >
-        <Text fontSize="lg" fontWeight="bold" mb={2}>
+        <Text fontSize="2xl" letterSpacing={1} mb={2}>
           Upload Devices Excel or CSV File
         </Text>
         <Input
@@ -55,22 +64,24 @@ const UploadDevices = () => {
           onChange={handleFileChange}
         />
         {file && (
-          <Text fontSize="sm" color="green.500" py={2}>
+          <Badge variant={"subtle"} fontSize="sm" colorPalette={"green"} my={2}>
             Selected File: {file.name}
-          </Text>
+          </Badge>
         )}
         {loading ? (
-          <Button>
+          <Button width={"full"} my={2}>
             <Spinner mr={2} />
             Uploading..
           </Button>
         ) : (
           <Button
-            colorScheme="teal"
+            my={2}
+            width={"full"}
             onClick={handleUpload}
-            isDisabled={!file || loading}
+            disabled={!file || loading}
           >
-            Upload
+            <CloudUpload />
+            Upload File
           </Button>
         )}
       </Box>

@@ -103,7 +103,7 @@ const Navbar = () => {
           display: "flex",
           alignItems: "center",
           gap: "6px",
-          padding: "6 px 12px",
+          padding: "6px 12px",
           borderRadius: "6px",
           transition: "all 0.2s",
           background: isActive ? "var(--chakra-colors-white)" : "transparent",

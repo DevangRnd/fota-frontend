@@ -1,6 +1,16 @@
-import { Box, Button, Input, Text, VStack, Spinner } from "@chakra-ui/react";
-
+import {
+  Box,
+  Button,
+  Input,
+  Text,
+  VStack,
+  Spinner,
+  Field,
+  defineStyle,
+} from "@chakra-ui/react";
+import { FileUp } from "lucide-react";
 import useFirmwareStore from "../../store/firmwareStore.jsx";
+
 const FirmwareUpload = () => {
   // State variables
   const {
@@ -11,6 +21,26 @@ const FirmwareUpload = () => {
     handleFileSelect,
     handleFirmwareUpload,
   } = useFirmwareStore();
+  const floatingStyles = defineStyle({
+    pos: "absolute",
+    bg: "bg",
+    px: "0.5",
+    top: "-3",
+    insetStart: "2",
+    fontWeight: "normal",
+    pointerEvents: "none",
+    transition: "position",
+    _peerPlaceholderShown: {
+      color: "fg",
+      top: "2.5",
+      insetStart: "3",
+    },
+    _peerFocusVisible: {
+      color: "fg.muted",
+      top: "-3",
+      insetStart: "2",
+    },
+  });
 
   return (
     <Box
@@ -21,20 +51,31 @@ const FirmwareUpload = () => {
       alignItems="center"
     >
       <VStack
-        spacing={5}
+        spacing={1}
         width={["300px", "400px", "500px"]}
         p={6}
         borderWidth={1}
         borderRadius="lg"
-        boxShadow="md"
+        shadow={"2xl"}
+        shadowColor={"white"}
       >
-        <Text>Upload Firmware</Text>
-        <Input
-          placeholder="Enter Device Name Here.."
-          width="100%"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
+        <Text letterSpacing={2} fontSize={"2xl"} mb={2}>
+          Upload Firmware
+        </Text>
+        <Field.Root>
+          <Box pos={"relative"} w={"full"}>
+            <Input
+              className="peer"
+              placeholder=""
+              width="100%"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+            <Field.Label css={floatingStyles}>
+              Enter Device Name Here..
+            </Field.Label>
+          </Box>
+        </Field.Root>
 
         <Input
           type="file"
@@ -50,17 +91,19 @@ const FirmwareUpload = () => {
           </Text>
         )}
         {isLoading ? (
-          <Button disabled color={"gray.400"}>
+          <Button my={2} disabled color={"gray.400"}>
             <Spinner /> Uploading..
           </Button>
         ) : (
           <Button
+            my={2}
             colorScheme="blue"
             width="100%"
             onClick={handleFirmwareUpload}
-            isDisabled={!name || !file}
+            disabled={!name || !file}
           >
-            Upload Firmware
+            <FileUp />
+            Start Uploading
           </Button>
         )}
       </VStack>
