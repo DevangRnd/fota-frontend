@@ -9,6 +9,7 @@ const TotalStats = () => {
   const pendingDevices = allDevices.filter((d) =>
     d.firmwareStatus.includes("Pending")
   );
+
   const successfullyUpdated = allDevices.filter((d) =>
     d.firmwareStatus.includes("Completed")
   );
@@ -36,7 +37,9 @@ const TotalStats = () => {
             <Loader />
           </Icon>
         </HStack>
-        <StatValueText>{pendingDevices.length}</StatValueText>
+        <StatValueText>
+          {pendingDevices.length === 0 ? "0" : pendingDevices.length}
+        </StatValueText>
       </StatRoot>
       <StatRoot borderWidth="1px" p="4" rounded="md" colorPalette={"green"}>
         <HStack justify="space-between">
@@ -45,7 +48,9 @@ const TotalStats = () => {
             <CheckCheck />
           </Icon>
         </HStack>
-        <StatValueText>{successfullyUpdated.length}</StatValueText>
+        <StatValueText>
+          {successfullyUpdated.length === 0 ? "0" : successfullyUpdated.length}
+        </StatValueText>
       </StatRoot>
     </Box>
   );
