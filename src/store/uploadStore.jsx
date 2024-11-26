@@ -73,7 +73,7 @@ const useUploadStore = create((set, get) => ({
       } else if (failedDevices.length > 0) {
         toaster.error({
           title: "Upload Failed",
-          description: `Failed to upload devices: ${failedDevices.join(", ")}`,
+          description: `Failed to upload devices: ${failedDevices.length}`,
           duration: 5000,
           isClosable: true,
         });

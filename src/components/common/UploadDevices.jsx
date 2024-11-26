@@ -100,11 +100,27 @@ const UploadDevices = () => {
                   <DialogCloseTrigger />
                 </DialogHeader>
                 <DialogBody>
-                  {successfulDevices.map((deviceId) => (
-                    <Text key={deviceId} color="white" p={2}>
-                      {deviceId}
-                    </Text>
-                  ))}
+                  <Box
+                    display={"grid"}
+                    gridTemplateColumns={{
+                      sm: "repeat(1,1fr)",
+                      md: "repeat(2,1fr)",
+                      lg: "repeat(3,1fr)",
+                      xl: "repeat(4,1fr)",
+                    }}
+                    gap={5}
+                  >
+                    {successfulDevices.map((deviceId) => (
+                      <Badge
+                        variant={"surface"}
+                        py={2}
+                        colorPalette={"green"}
+                        key={deviceId}
+                      >
+                        {deviceId}
+                      </Badge>
+                    ))}
+                  </Box>
                 </DialogBody>
               </DialogContent>
             </DialogRoot>
@@ -122,12 +138,28 @@ const UploadDevices = () => {
                   <DialogTitle>Failed Devices:</DialogTitle>
                   <DialogCloseTrigger />
                 </DialogHeader>
-                <DialogBody overflow={"hidden"}>
-                  {failedDevices.map((deviceId) => (
-                    <Text fontWeight={"bold"} key={deviceId}>
-                      {deviceId}
-                    </Text>
-                  ))}
+                <DialogBody>
+                  <Box
+                    display={"grid"}
+                    gridTemplateColumns={{
+                      sm: "repeat(1,1fr)",
+                      md: "repeat(2,1fr)",
+                      lg: "repeat(3,1fr)",
+                      xl: "repeat(4,1fr)",
+                    }}
+                    gap={5}
+                  >
+                    {failedDevices.map((deviceId) => (
+                      <Badge
+                        variant={"surface"}
+                        py={2}
+                        colorPalette={"red"}
+                        key={deviceId}
+                      >
+                        {deviceId}
+                      </Badge>
+                    ))}
+                  </Box>
                 </DialogBody>
               </DialogContent>
             </DialogRoot>

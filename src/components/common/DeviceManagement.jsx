@@ -1,20 +1,21 @@
 import { useEffect, useState } from "react";
+
+import { formatDistanceToNow } from "date-fns";
 import {
   Box,
   Button,
   Spinner,
   Table,
   Input,
-  Text,
   Badge,
-  Field,
-  defineStyle,
-  Separator,
+  Group,
+  InputAddon,
 } from "@chakra-ui/react";
+
 import { Checkbox } from "../ui/checkbox";
 import { Alert } from "../ui/alert";
 import useDeviceStore from "../../store/deviceStore";
-import { LuSearch, LuChevronLeft, LuChevronRight } from "react-icons/lu";
+import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
 
 import {
   DialogActionTrigger,
@@ -24,6 +25,8 @@ import {
   DialogRoot,
   DialogTrigger,
   DialogContent,
+  DialogDescription,
+  DialogTitle,
 } from "../ui/dialog";
 import {
   ActionBarRoot,
@@ -31,7 +34,9 @@ import {
   ActionBarSelectionTrigger,
   ActionBarSeparator,
 } from "../ui/action-bar";
+
 import TotalStats from "./TotalStats";
+import { ChevronsLeftRight, FileCog, SearchIcon } from "lucide-react";
 const DeviceManagement = () => {
   const {
     loading,
@@ -59,7 +64,7 @@ const DeviceManagement = () => {
 
   // Filtered devices based on search term
   const filteredDevices = allDevices.filter((device) => {
-    const search = searchTerm.toLowerCase();
+    const search = searchTerm.toLowerCase().trim();
     return Object.values(device).some((value) =>
       String(value).toLowerCase().includes(search)
     );
@@ -116,6 +121,7 @@ const DeviceManagement = () => {
     const deviceIds = currentDevices.map((device) => device.deviceId);
     deviceIds.forEach(selectDevice);
   };
+
   if (loading) {
     return (
       <Box h={"100vh"} w={"100%"} display={"grid"} placeItems={"center"}>
@@ -123,26 +129,6 @@ const DeviceManagement = () => {
       </Box>
     );
   }
-  const floatingStyles = defineStyle({
-    pos: "absolute",
-    bg: "bg",
-    px: "0.5",
-    top: "-3",
-    insetStart: "2",
-    fontWeight: "normal",
-    pointerEvents: "none",
-    transition: "position",
-    _peerPlaceholderShown: {
-      color: "fg",
-      top: "2.5",
-      insetStart: "3",
-    },
-    _peerFocusVisible: {
-      color: "fg.muted",
-      top: "-3",
-      insetStart: "2",
-    },
-  });
 
   return (
     <Box w={"80%"} mx={"auto"} my={10}>
@@ -155,21 +141,18 @@ const DeviceManagement = () => {
         my={4}
         gap={5}
       >
-        <Field.Root>
-          <Box pos={"relative"} w={"full"}>
-            <Input
-              className="peer"
-              p={2}
-              rounded={"md"}
-              placeholder=""
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <Field.Label css={floatingStyles}>
-              Search across all fields
-            </Field.Label>
-          </Box>
-        </Field.Root>
+        <Group attached>
+          <InputAddon>
+            <SearchIcon size={18} />
+          </InputAddon>
+          <Input
+            p={2}
+            rounded={"md"}
+            placeholder="Search Accross All Fields"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </Group>
         {filteredDevices.length > 10 && (
           <Box
             as={"select"}
@@ -194,9 +177,13 @@ const DeviceManagement = () => {
 
       {searchTerm.trim() !== "" && (
         <Alert
+          data-state="open"
+          _open={{
+            animation: "slide-in 200ms",
+          }}
           variant={"subtle"}
           title={`Search Results for:- ${searchTerm} (${filteredDevices.length})`}
-          icon={<LuSearch />}
+          icon={<ChevronsLeftRight />}
           my={3}
         />
       )}
@@ -225,11 +212,10 @@ const DeviceManagement = () => {
         <Table.Root
           size={"md"}
           variant={"outline"}
-          interactive
           showColumnBorder
           colorPalette={"blue"}
         >
-          <Table.Header>
+          <Table.Header bg={"blue.700"} _light={{ bg: "blue.200" }}>
             <Table.Row>
               <Table.ColumnHeader onClick={handleSelectAll} cursor={"pointer"}>
                 Select All
@@ -240,6 +226,8 @@ const DeviceManagement = () => {
               <Table.ColumnHeader>Block</Table.ColumnHeader>
               <Table.ColumnHeader>Panchayat</Table.ColumnHeader>
               <Table.ColumnHeader>Firmware Status</Table.ColumnHeader>
+              <Table.ColumnHeader>Signal Strength</Table.ColumnHeader>
+              <Table.ColumnHeader>Last Updated</Table.ColumnHeader>
             </Table.Row>
           </Table.Header>
           <Table.Body>
@@ -247,6 +235,7 @@ const DeviceManagement = () => {
               <Table.Row key={device._id}>
                 <Table.Cell>
                   <Checkbox
+                    variant={"outline"}
                     colorPalette={"green"}
                     checked={selectedDevices.includes(device.deviceId)}
                     onChange={() => selectDevice(device.deviceId)}
@@ -259,20 +248,42 @@ const DeviceManagement = () => {
                 <Table.Cell>{device.panchayat}</Table.Cell>
                 <Table.Cell>
                   {device.firmwareStatus === "Null" && (
-                    <Badge variant={"solid"} colorPalette={"gray"}>
+                    <Badge variant={"solid"} colorPalette={"red"}>
                       {device.firmwareStatus}
                     </Badge>
-                  )}{" "}
+                  )}
                   {device.firmwareStatus.includes("Pending") && (
                     <Badge variant={"solid"} colorPalette={"yellow"}>
                       {device.firmwareStatus}
                     </Badge>
-                  )}{" "}
+                  )}
                   {device.firmwareStatus.includes("Completed") && (
                     <Badge variant={"solid"} colorPalette={"green"}>
                       {device.firmwareStatus}
                     </Badge>
-                  )}{" "}
+                  )}
+                </Table.Cell>
+                <Table.Cell>
+                  <Badge
+                    variant={"subtle"}
+                    size={"md"}
+                    colorPalette={
+                      device.signalStrength > 20
+                        ? "green"
+                        : device.signalStrength > 10
+                          ? "yellow"
+                          : device.signalStrength > 0
+                            ? "red"
+                            : "gray"
+                    }
+                  >
+                    {device.signalStrength || "Not Available"}
+                  </Badge>
+                </Table.Cell>
+                <Table.Cell>
+                  {device.lastUpdated
+                    ? `${formatDistanceToNow(new Date(device.lastUpdated))} ago`
+                    : "Not Available"}
                 </Table.Cell>
               </Table.Row>
             ))}
@@ -329,7 +340,9 @@ const DeviceManagement = () => {
       >
         <ActionBarContent>
           <ActionBarSelectionTrigger>
-            {selectedDevices.length}
+            {selectedDevices.length === 1
+              ? `${selectedDevices.length} Device Selected`
+              : `${selectedDevices.length} Devices Selected`}
           </ActionBarSelectionTrigger>
           <ActionBarSeparator />
 
@@ -342,50 +355,41 @@ const DeviceManagement = () => {
             Cancel
           </Button>
 
-          <DialogRoot
-            size={"lg"}
-            placement={"center"}
-            motionPreset={"scale"}
-            role="alertdialog"
-          >
-            <DialogTrigger>
+          <DialogRoot placement="center">
+            <DialogTrigger asChild>
               <Button
-                size={"sm"}
+                variant="surface"
+                colorPalette="green"
+                size="sm"
                 disabled={!selectedFirmware || selectedDevices.length === 0}
-                my={4}
               >
+                <FileCog />
                 Update
               </Button>
             </DialogTrigger>
-            <DialogContent>
-              <DialogHeader fontSize={"2xl"}>Please Confirm</DialogHeader>
 
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle> Please Confirm</DialogTitle>
+              </DialogHeader>
               <DialogBody>
-                <Text fontSize={"md"} py={2}>
+                <DialogDescription>
                   You are about to initiate update for {selectedDevices.length}{" "}
                   devices. With firmware version {firmwares.map((f) => f.name)}
-                </Text>
-                <Separator />
-                <DialogFooter>
-                  <DialogActionTrigger asChild>
-                    <Button
-                      colorPalette={"red"}
-                      size={"sm"}
-                      variant={"outline"}
-                    >
-                      Cancel
-                    </Button>
-                  </DialogActionTrigger>
-                  <Button
-                    colorPalette={"green"}
-                    size={"sm"}
-                    variant={"subtle"}
-                    onClick={initiateUpdate}
-                  >
-                    Proceed
-                  </Button>
-                </DialogFooter>
+                </DialogDescription>
               </DialogBody>
+              <DialogFooter>
+                <DialogActionTrigger asChild>
+                  <Button variant="subtle">Cancel</Button>
+                </DialogActionTrigger>
+                <Button
+                  colorPalette={"green"}
+                  variant={"solid"}
+                  onClick={initiateUpdate}
+                >
+                  Proceed
+                </Button>
+              </DialogFooter>
             </DialogContent>
           </DialogRoot>
         </ActionBarContent>

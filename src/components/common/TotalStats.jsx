@@ -28,7 +28,9 @@ const TotalStats = () => {
             <SatelliteDish />
           </Icon>
         </HStack>
-        <StatValueText>{allDevices.length}</StatValueText>
+        <StatValueText>
+          {allDevices.length === 0 ? "0" : allDevices.length}
+        </StatValueText>
       </StatRoot>
       <StatRoot borderWidth="1px" p="4" rounded="md" colorPalette={"yellow"}>
         <HStack justify="space-between">

@@ -72,7 +72,7 @@ const FirmwareUpload = () => {
               onChange={(e) => setName(e.target.value)}
             />
             <Field.Label css={floatingStyles}>
-              Enter Device Name Here..
+              Enter Firmware Name Here..
             </Field.Label>
           </Box>
         </Field.Root>

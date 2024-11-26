@@ -12,10 +12,12 @@ import UploadDevices from "./components/common/UploadDevices";
 import LoginForm from "./components/common/LoginForm";
 import ProtectedRoute from "./components/common/ProtectedRoute";
 import PublicRoute from "./components/common/PublicRoute";
+import PageProgress from "./components/common/PageProgress";
 
 const Layout = () => {
   return (
     <>
+      <PageProgress />
       <Navbar />
       <Outlet />
     </>
