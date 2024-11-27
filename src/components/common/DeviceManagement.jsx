@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { formatDistanceToNow } from "date-fns";
+import { format } from "date-fns";
 import {
   Box,
   Button,
