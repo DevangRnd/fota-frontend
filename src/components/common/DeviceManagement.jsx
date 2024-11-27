@@ -281,9 +281,7 @@ const DeviceManagement = () => {
                   </Badge>
                 </Table.Cell>
                 <Table.Cell>
-                  {device.lastUpdated
-                    ? `${formatDistanceToNow(new Date(device.lastUpdated))} ago`
-                    : "Not Available"}
+                  {device.lastUpdated ? format(new Date(device.lastUpdated), 'yyyy-MM-dd HH:mm:ss') : "Not Available"}
                 </Table.Cell>
               </Table.Row>
             ))}
