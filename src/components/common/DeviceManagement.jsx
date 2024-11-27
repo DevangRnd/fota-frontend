@@ -281,7 +281,7 @@ const DeviceManagement = () => {
                   </Badge>
                 </Table.Cell>
                 <Table.Cell>
-                  {device.lastUpdated ? format(new Date(device.lastUpdated), 'yyyy-MM-dd HH:mm:ss') : "Not Available"}
+                  {device.lastUpdated ? format(new Date(device.lastUpdated), 'MMM d, yyyy, h:mm:ss a') : "Not Available"}
                 </Table.Cell>
               </Table.Row>
             ))}
