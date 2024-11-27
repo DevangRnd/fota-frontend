@@ -248,25 +248,37 @@ const DeviceManagement = () => {
                 <Table.Cell>{device.panchayat}</Table.Cell>
                 <Table.Cell>
                   {device.firmwareStatus === "Null" && (
-                    <Badge variant={"solid"} colorPalette={"red"}>
+                    <Badge
+                      variant={"solid"}
+                      size={{ base: "sm", lg: "md" }}
+                      colorPalette={"red"}
+                    >
                       {device.firmwareStatus}
                     </Badge>
                   )}
                   {device.firmwareStatus.includes("Pending") && (
-                    <Badge variant={"solid"} colorPalette={"yellow"}>
+                    <Badge
+                      variant={"solid"}
+                      size={{ base: "sm", lg: "md" }}
+                      colorPalette={"yellow"}
+                    >
                       {device.firmwareStatus}
                     </Badge>
                   )}
                   {device.firmwareStatus.includes("Completed") && (
-                    <Badge variant={"solid"} colorPalette={"green"}>
+                    <Badge
+                      variant={"solid"}
+                      size={{ base: "sm", lg: "md" }}
+                      colorPalette={"green"}
+                    >
                       {device.firmwareStatus}
                     </Badge>
                   )}
                 </Table.Cell>
                 <Table.Cell>
                   <Badge
-                    variant={"subtle"}
-                    size={"md"}
+                    variant={"solid"}
+                    size={{ base: "sm", lg: "md" }}
                     colorPalette={
                       device.signalStrength > 20
                         ? "green"
@@ -277,11 +289,27 @@ const DeviceManagement = () => {
                             : "gray"
                     }
                   >
+                    {/* {device.signalStrength ? (
+                    <ProgressCircleRoot value={device.signalStrength} max={30}>
+                      <ProgressCircleValueText>
+                        {device.signalStrength}
+                      </ProgressCircleValueText>
+                      <ProgressCircleRing />
+                    </ProgressCircleRoot>
+                  ) : (
+                    <Badge>Not Available</Badge>
+                  )} */}
+
                     {device.signalStrength || "Not Available"}
                   </Badge>
                 </Table.Cell>
                 <Table.Cell>
-                  {device.lastUpdated ? format(new Date(device.lastUpdated), 'MMM d, yyyy, h:mm:ss a') : "Not Available"}
+                  {device.lastUpdated
+                    ? format(
+                        new Date(device.lastUpdated),
+                        "MMM d, yyyy, h:mm:ss a"
+                      )
+                    : "Not Available"}
                 </Table.Cell>
               </Table.Row>
             ))}
