@@ -235,7 +235,8 @@ const DeviceManagement = () => {
               <Table.Row key={device._id}>
                 <Table.Cell>
                   <Checkbox
-                    variant={"outline"}
+                    cursor={"pointer"}
+                    variant={"solid"}
                     colorPalette={"green"}
                     checked={selectedDevices.includes(device.deviceId)}
                     onChange={() => selectDevice(device.deviceId)}
@@ -304,12 +305,14 @@ const DeviceManagement = () => {
                   </Badge>
                 </Table.Cell>
                 <Table.Cell>
-                  {device.lastUpdated
-                    ? format(
-                        new Date(device.lastUpdated),
-                        "MMM d, yyyy, h:mm:ss a"
-                      )
-                    : "Not Available"}
+                  <Badge size={"md"}>
+                    {device.lastUpdated
+                      ? format(
+                          new Date(device.lastUpdated),
+                          "MMM d, yyyy, h:mm:ss a"
+                        )
+                      : "Not Available"}
+                  </Badge>
                 </Table.Cell>
               </Table.Row>
             ))}
