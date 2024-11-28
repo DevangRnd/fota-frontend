@@ -301,7 +301,7 @@ const DeviceManagement = () => {
                     <Badge>Not Available</Badge>
                   )} */}
 
-                    {device.signalStrength || "Not Available"}
+                    {device.signalStrength || "0"}
                   </Badge>
                 </Table.Cell>
                 <Table.Cell>
@@ -311,7 +311,7 @@ const DeviceManagement = () => {
                           new Date(device.lastUpdated),
                           "MMM d, yyyy, h:mm:ss a"
                         )
-                      : "0"}
+                      : "Not Available"}
                   </Badge>
                 </Table.Cell>
               </Table.Row>
