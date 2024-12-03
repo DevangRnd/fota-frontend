@@ -11,7 +11,14 @@ import {
   Group,
   InputAddon,
 } from "@chakra-ui/react";
-
+import {
+  SelectContent,
+  SelectItem,
+  SelectLabel,
+  SelectRoot,
+  SelectTrigger,
+  SelectValueText,
+} from "../ui/select";
 import { Checkbox } from "../ui/checkbox";
 import { Alert } from "../ui/alert";
 import useDeviceStore from "../../store/deviceStore";
@@ -36,7 +43,13 @@ import {
 } from "../ui/action-bar";
 
 import TotalStats from "./TotalStats";
-import { ChevronsLeftRight, FileCog, SearchIcon } from "lucide-react";
+import {
+  ChevronDownIcon,
+  ChevronsLeftRight,
+  FileCog,
+  SearchCode,
+  SearchIcon,
+} from "lucide-react";
 const DeviceManagement = () => {
   const {
     loading,
@@ -53,6 +66,7 @@ const DeviceManagement = () => {
 
   // State for search, pagination, and items per page
   const [searchTerm, setSearchTerm] = useState("");
+  const [secondarySearchTerm, setSecondarySearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [devicesPerPage, setDevicesPerPage] = useState(10);
 
@@ -69,16 +83,21 @@ const DeviceManagement = () => {
       String(value).toLowerCase().includes(search)
     );
   });
-
+  const finalFilteredDevices = filteredDevices.filter((device) => {
+    const search = secondarySearchTerm.toLowerCase().trim();
+    return Object.values(device).some((value) =>
+      String(value).toLowerCase().includes(search)
+    );
+  });
   // Pagination logic
   const indexOfLastDevice = currentPage * devicesPerPage;
   const indexOfFirstDevice = indexOfLastDevice - devicesPerPage;
-  const currentDevices = filteredDevices.slice(
+  const currentDevices = finalFilteredDevices.slice(
     indexOfFirstDevice,
     indexOfLastDevice
   );
 
-  const totalPages = Math.ceil(filteredDevices.length / devicesPerPage);
+  const totalPages = Math.ceil(finalFilteredDevices.length / devicesPerPage);
 
   // Handle page change
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
@@ -134,7 +153,7 @@ const DeviceManagement = () => {
     <Box w={"80%"} mx={"auto"} my={10}>
       <TotalStats />
 
-      {/* Search and pagination controls */}
+      {/* Search controls */}
       <Box
         display={"grid"}
         gridTemplateColumns={{ base: "1fr", lg: "repeat(3, 1fr)" }}
@@ -153,7 +172,22 @@ const DeviceManagement = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </Group>
-        {filteredDevices.length > 10 && (
+        {searchTerm.trim().length > 0 && (
+          <Group attached>
+            <InputAddon>
+              <SearchCode size={18} />
+            </InputAddon>
+            <Input
+              p={2}
+              rounded={"md"}
+              placeholder="Secondary Search.."
+              value={secondarySearchTerm}
+              onChange={(e) => setSecondarySearchTerm(e.target.value)}
+            />
+          </Group>
+        )}
+
+        {filteredDevices.length > 10 && finalFilteredDevices.length > 10 && (
           <Box
             as={"select"}
             p={2}
@@ -182,12 +216,24 @@ const DeviceManagement = () => {
             animation: "slide-in 200ms",
           }}
           variant={"subtle"}
-          title={`Search Results for:- ${searchTerm} (${filteredDevices.length})`}
+          title={`Primary Search Results for:- ${searchTerm} (${filteredDevices.length})`}
           icon={<ChevronsLeftRight />}
           my={3}
         />
       )}
-
+      {secondarySearchTerm.trim() !== "" && (
+        <Alert
+          data-state="open"
+          _open={{
+            animation: "slide-in 200ms",
+          }}
+          status={"success"}
+          variant={"subtle"}
+          title={`Secondary Search Results for:- ${secondarySearchTerm} (${finalFilteredDevices.length})`}
+          icon={<ChevronDownIcon />}
+          my={3}
+        />
+      )}
       <Box
         id="select"
         fontSize={"0.9rem"}
