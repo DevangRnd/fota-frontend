@@ -11,14 +11,7 @@ import {
   Group,
   InputAddon,
 } from "@chakra-ui/react";
-import {
-  SelectContent,
-  SelectItem,
-  SelectLabel,
-  SelectRoot,
-  SelectTrigger,
-  SelectValueText,
-} from "../ui/select";
+
 import { Checkbox } from "../ui/checkbox";
 import { Alert } from "../ui/alert";
 import useDeviceStore from "../../store/deviceStore";
@@ -41,11 +34,16 @@ import {
   ActionBarSelectionTrigger,
   ActionBarSeparator,
 } from "../ui/action-bar";
-
+import {
+  BreadcrumbCurrentLink,
+  BreadcrumbLink,
+  BreadcrumbRoot,
+} from "../ui/breadcrumb";
 import TotalStats from "./TotalStats";
 import {
-  ChevronDownIcon,
-  ChevronsLeftRight,
+  ChevronRight,
+  // ChevronDownIcon,
+  // ChevronsLeftRight,
   FileCog,
   SearchCode,
   SearchIcon,
@@ -160,6 +158,7 @@ const DeviceManagement = () => {
         my={4}
         gap={5}
       >
+        {/* Search Bars */}
         <Group attached>
           <InputAddon>
             <SearchIcon size={18} />
@@ -208,8 +207,26 @@ const DeviceManagement = () => {
           </Box>
         )}
       </Box>
-
-      {searchTerm.trim() !== "" && (
+      {/* Breadcrumbs showing different levels of search */}
+      {searchTerm.trim().length > 0 && (
+        <Alert
+          variant={"subtle"}
+          icon={<ChevronRight />}
+          title={"Search Results"}
+        >
+          <BreadcrumbRoot size="lg">
+            {!secondarySearchTerm.trim().length > 0 ? (
+              <BreadcrumbCurrentLink>{`${searchTerm} (${filteredDevices.length})`}</BreadcrumbCurrentLink>
+            ) : (
+              <BreadcrumbLink>{`${searchTerm} (${filteredDevices.length})`}</BreadcrumbLink>
+            )}
+            {secondarySearchTerm.trim().length > 0 && (
+              <BreadcrumbCurrentLink>{`${secondarySearchTerm} (${finalFilteredDevices.length})`}</BreadcrumbCurrentLink>
+            )}
+          </BreadcrumbRoot>
+        </Alert>
+      )}
+      {/* {searchTerm.trim() !== "" && (
         <Alert
           data-state="open"
           _open={{
@@ -233,7 +250,7 @@ const DeviceManagement = () => {
           icon={<ChevronDownIcon />}
           my={3}
         />
-      )}
+      )} */}
       <Box
         id="select"
         fontSize={"0.9rem"}
@@ -324,7 +341,7 @@ const DeviceManagement = () => {
                 </Table.Cell>
                 <Table.Cell>
                   <Badge
-                    variant={"solid"}
+                    variant={"surface"}
                     size={{ base: "sm", lg: "md" }}
                     colorPalette={
                       device.signalStrength > 20
@@ -336,17 +353,6 @@ const DeviceManagement = () => {
                             : "gray"
                     }
                   >
-                    {/* {device.signalStrength ? (
-                    <ProgressCircleRoot value={device.signalStrength} max={30}>
-                      <ProgressCircleValueText>
-                        {device.signalStrength}
-                      </ProgressCircleValueText>
-                      <ProgressCircleRing />
-                    </ProgressCircleRoot>
-                  ) : (
-                    <Badge>Not Available</Badge>
-                  )} */}
-
                     {device.signalStrength || "0"}
                   </Badge>
                 </Table.Cell>
