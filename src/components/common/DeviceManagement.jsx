@@ -1,17 +1,18 @@
 import { useEffect, useState } from "react";
-
 import { format } from "date-fns";
 import {
   Box,
   Button,
   Spinner,
   Table,
-  Input,
   Badge,
-  Group,
-  InputAddon,
+  Grid,
+  Text,
+  Flex,
+  Card,
+  Input,
 } from "@chakra-ui/react";
-
+import { InputGroup } from "../ui/input-group";
 import { Checkbox } from "../ui/checkbox";
 import { Alert } from "../ui/alert";
 import useDeviceStore from "../../store/deviceStore";
@@ -39,15 +40,9 @@ import {
   BreadcrumbLink,
   BreadcrumbRoot,
 } from "../ui/breadcrumb";
+
 import TotalStats from "./TotalStats";
-import {
-  ChevronRight,
-  // ChevronDownIcon,
-  // ChevronsLeftRight,
-  FileCog,
-  SearchCode,
-  SearchIcon,
-} from "lucide-react";
+import { ChevronRight, ChevronsRight, FileCog, SearchCode } from "lucide-react";
 const DeviceManagement = () => {
   const {
     loading,
@@ -63,8 +58,22 @@ const DeviceManagement = () => {
   } = useDeviceStore();
 
   // State for search, pagination, and items per page
-  const [searchTerm, setSearchTerm] = useState("");
-  const [secondarySearchTerm, setSecondarySearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState({
+    vendor: "",
+    district: "",
+    block: "",
+    panchayat: "",
+  });
+  const [deviceIdSearch, setDeviceIdSearch] = useState("");
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setSearchTerm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+    setCurrentPage(1); // Reset to the first page on filter change
+  };
+  // const [secondarySearchTerm, setSecondarySearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [devicesPerPage, setDevicesPerPage] = useState(10);
 
@@ -76,26 +85,36 @@ const DeviceManagement = () => {
 
   // Filtered devices based on search term
   const filteredDevices = allDevices.filter((device) => {
-    const search = searchTerm.toLowerCase().trim();
-    return Object.values(device).some((value) =>
-      String(value).toLowerCase().includes(search)
+    const search = deviceIdSearch.toLowerCase().trim();
+
+    return (
+      (!searchTerm.vendor ||
+        device.vendor
+          .toLowerCase()
+          .includes(searchTerm.vendor.toLowerCase())) &&
+      (!searchTerm.district ||
+        device.district
+          .toLowerCase()
+          .includes(searchTerm.district.toLowerCase())) &&
+      (!searchTerm.block ||
+        device.block.toLowerCase().includes(searchTerm.block.toLowerCase())) &&
+      (!searchTerm.panchayat ||
+        device.panchayat
+          .toLowerCase()
+          .includes(searchTerm.panchayat.toLowerCase())) &&
+      (!search || device.deviceId.toLowerCase().includes(search))
     );
   });
-  const finalFilteredDevices = filteredDevices.filter((device) => {
-    const search = secondarySearchTerm.toLowerCase().trim();
-    return Object.values(device).some((value) =>
-      String(value).toLowerCase().includes(search)
-    );
-  });
+
   // Pagination logic
   const indexOfLastDevice = currentPage * devicesPerPage;
   const indexOfFirstDevice = indexOfLastDevice - devicesPerPage;
-  const currentDevices = finalFilteredDevices.slice(
+  const currentDevices = filteredDevices.slice(
     indexOfFirstDevice,
     indexOfLastDevice
   );
 
-  const totalPages = Math.ceil(finalFilteredDevices.length / devicesPerPage);
+  const totalPages = Math.ceil(filteredDevices.length / devicesPerPage);
 
   // Handle page change
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
@@ -139,6 +158,15 @@ const DeviceManagement = () => {
     deviceIds.forEach(selectDevice);
   };
 
+  const allVendors = [...new Set(allDevices.map((device) => device.vendor))];
+  const allDistricts = [
+    ...new Set(allDevices.map((device) => device.district)),
+  ];
+  const allBlocks = [...new Set(allDevices.map((device) => device.block))];
+  const allPanchayats = [
+    ...new Set(allDevices.map((device) => device.panchayat)),
+  ];
+
   if (loading) {
     return (
       <Box h={"100vh"} w={"100%"} display={"grid"} placeItems={"center"}>
@@ -148,45 +176,148 @@ const DeviceManagement = () => {
   }
 
   return (
-    <Box w={"80%"} mx={"auto"} my={10}>
+    <Flex flexDirection={"column"} gap={5} w={"80%"} mx={"auto"} my={10}>
       <TotalStats />
+      <Card.Root
+        flexDirection={"column"}
+        // bg={"blue.500"}
+        py={5}
+        px={5}
+        rounded={"xl"}
+        shadow={"2xl"}
+        justifyContent={"space-between"}
+      >
+        <Text mb={2} fontSize={"2xl"}>
+          Apply Filters:
+        </Text>
+        <Grid
+          shadowColor={"white"}
+          gridTemplateColumns={{ md: "repeat(1,1fr)", lg: "repeat(4,1fr)" }}
+          gap={10}
+        >
+          <Box
+            name="vendor"
+            rounded={"md"}
+            fontSize={"0.87rem"}
+            p={2}
+            as={"select"}
+            value={searchTerm.vendor}
+            onChange={handleChange}
+          >
+            <option value="">All Vendors</option>
+            {allVendors.map((vendor, index) => (
+              <option value={vendor} key={index}>
+                {vendor}
+              </option>
+            ))}
+          </Box>
+          <Box
+            name="district"
+            rounded={"md"}
+            fontSize={"0.87rem"}
+            p={2}
+            as={"select"}
+            value={searchTerm.district}
+            onChange={handleChange}
+          >
+            <option value="">All Districts</option>
+            {allDistricts.map((district, index) => (
+              <option value={district} key={index}>
+                {district}
+              </option>
+            ))}
+          </Box>
+          <Box
+            name="block"
+            rounded={"md"}
+            fontSize={"0.87rem"}
+            p={2}
+            as={"select"}
+            value={searchTerm.block}
+            onChange={handleChange}
+          >
+            <option value="">All Blocks</option>
+            {allBlocks.map((block, index) => (
+              <option value={block} key={index}>
+                {block}
+              </option>
+            ))}
+          </Box>
+          <Box
+            name="panchayat"
+            rounded={"md"}
+            fontSize={"0.87rem"}
+            p={2}
+            as={"select"}
+            value={searchTerm.panchayat}
+            onChange={handleChange}
+          >
+            <option value="">All Panchayats</option>
+            {allPanchayats.map((panchayat, index) => (
+              <option value={panchayat} key={index}>
+                {panchayat}
+              </option>
+            ))}
+          </Box>
+        </Grid>
+      </Card.Root>
 
-      {/* Search controls */}
+      {/* Breadcrumbs showing different levels of search */}
+      {(searchTerm.vendor ||
+        searchTerm.district ||
+        searchTerm.block ||
+        searchTerm.panchayat) && (
+        <Alert
+          variant={"subtle"}
+          icon={<ChevronRight />}
+          title={`Search Results (${filteredDevices.length})`}
+        >
+          <BreadcrumbRoot size="lg" separator={<ChevronsRight />}>
+            {searchTerm.vendor ? (
+              !searchTerm.district &&
+              !searchTerm.block &&
+              !searchTerm.panchayat ? (
+                <BreadcrumbCurrentLink>
+                  Vendor: {searchTerm.vendor}
+                </BreadcrumbCurrentLink>
+              ) : (
+                <BreadcrumbLink>Vendor: {searchTerm.vendor}</BreadcrumbLink>
+              )
+            ) : null}
+            {searchTerm.district ? (
+              !searchTerm.block && !searchTerm.panchayat ? (
+                <BreadcrumbCurrentLink>
+                  District: {searchTerm.district}
+                </BreadcrumbCurrentLink>
+              ) : (
+                <BreadcrumbLink>District: {searchTerm.district}</BreadcrumbLink>
+              )
+            ) : null}
+            {searchTerm.block ? (
+              !searchTerm.panchayat ? (
+                <BreadcrumbCurrentLink>
+                  Block: {searchTerm.block}
+                </BreadcrumbCurrentLink>
+              ) : (
+                <BreadcrumbLink>Block: {searchTerm.block}</BreadcrumbLink>
+              )
+            ) : null}
+            {searchTerm.panchayat && (
+              <BreadcrumbCurrentLink>
+                Panchayat: {searchTerm.panchayat}
+              </BreadcrumbCurrentLink>
+            )}
+          </BreadcrumbRoot>
+        </Alert>
+      )}
+      {/* Per Page Filter and Device ID Search */}
       <Box
         display={"grid"}
-        gridTemplateColumns={{ base: "1fr", lg: "repeat(3, 1fr)" }}
+        gridTemplateColumns={{ base: "1fr", lg: "repeat(2, 1fr)" }}
         my={4}
         gap={5}
       >
-        {/* Search Bars */}
-        <Group attached>
-          <InputAddon>
-            <SearchIcon size={18} />
-          </InputAddon>
-          <Input
-            p={2}
-            rounded={"md"}
-            placeholder="Search Accross All Fields"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </Group>
-        {searchTerm.trim().length > 0 && (
-          <Group attached>
-            <InputAddon>
-              <SearchCode size={18} />
-            </InputAddon>
-            <Input
-              p={2}
-              rounded={"md"}
-              placeholder="Secondary Search.."
-              value={secondarySearchTerm}
-              onChange={(e) => setSecondarySearchTerm(e.target.value)}
-            />
-          </Group>
-        )}
-
-        {filteredDevices.length > 10 && finalFilteredDevices.length > 10 && (
+        {filteredDevices.length > 10 && (
           <Box
             as={"select"}
             p={2}
@@ -206,58 +337,24 @@ const DeviceManagement = () => {
             </Box>
           </Box>
         )}
+        <InputGroup startElement={<SearchCode />}>
+          <Input
+            variant={"subtle"}
+            placeholder="Search For Device ID"
+            value={deviceIdSearch}
+            onChange={(e) => setDeviceIdSearch(e.target.value)}
+          />
+        </InputGroup>
       </Box>
-      {/* Breadcrumbs showing different levels of search */}
-      {searchTerm.trim().length > 0 && (
-        <Alert
-          variant={"subtle"}
-          icon={<ChevronRight />}
-          title={"Search Results"}
-        >
-          <BreadcrumbRoot size="lg">
-            {!secondarySearchTerm.trim().length > 0 ? (
-              <BreadcrumbCurrentLink>{`${searchTerm} (${filteredDevices.length})`}</BreadcrumbCurrentLink>
-            ) : (
-              <BreadcrumbLink>{`${searchTerm} (${filteredDevices.length})`}</BreadcrumbLink>
-            )}
-            {secondarySearchTerm.trim().length > 0 && (
-              <BreadcrumbCurrentLink>{`${secondarySearchTerm} (${finalFilteredDevices.length})`}</BreadcrumbCurrentLink>
-            )}
-          </BreadcrumbRoot>
-        </Alert>
+      {deviceIdSearch.trim() && (
+        <Alert title="Searching for Device Id">{deviceIdSearch}</Alert>
       )}
-      {/* {searchTerm.trim() !== "" && (
-        <Alert
-          data-state="open"
-          _open={{
-            animation: "slide-in 200ms",
-          }}
-          variant={"subtle"}
-          title={`Primary Search Results for:- ${searchTerm} (${filteredDevices.length})`}
-          icon={<ChevronsLeftRight />}
-          my={3}
-        />
-      )}
-      {secondarySearchTerm.trim() !== "" && (
-        <Alert
-          data-state="open"
-          _open={{
-            animation: "slide-in 200ms",
-          }}
-          status={"success"}
-          variant={"subtle"}
-          title={`Secondary Search Results for:- ${secondarySearchTerm} (${finalFilteredDevices.length})`}
-          icon={<ChevronDownIcon />}
-          my={3}
-        />
-      )} */}
       <Box
         id="select"
         fontSize={"0.9rem"}
         as={"select"}
         w={"100%"}
         p={2}
-        my={3}
         value={selectedFirmware}
         onChange={(e) => selectFirmware(e.target.value)}
         rounded={"md"}
@@ -371,12 +468,10 @@ const DeviceManagement = () => {
           </Table.Body>
         </Table.Root>
       </Table.ScrollArea>
-
       {/* Pagination Controls */}
       <Box
         display="flex"
         justifyContent="flex-start"
-        mt={4}
         alignItems="center"
         flexWrap={"wrap"}
       >
@@ -475,7 +570,7 @@ const DeviceManagement = () => {
           </DialogRoot>
         </ActionBarContent>
       </ActionBarRoot>
-    </Box>
+    </Flex>
   );
 };
 

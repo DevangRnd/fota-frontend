@@ -16,7 +16,6 @@ const TotalStats = () => {
 
   return (
     <Box
-      my={7}
       display={"grid"}
       gridTemplateColumns={{ base: "1fr", lg: "repeat(3, 1fr)" }}
       gap={10}
