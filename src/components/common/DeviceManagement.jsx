@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
+import "../../backgroundAnimation.css";
 import {
   Box,
   Button,
@@ -64,6 +65,7 @@ const DeviceManagement = () => {
     district: "",
     block: "",
     panchayat: "",
+    uploadedOn: "",
   });
   const [deviceIdSearch, setDeviceIdSearch] = useState("");
   const handleChange = (e) => {
@@ -96,6 +98,8 @@ const DeviceManagement = () => {
         device.vendor
           .toLowerCase()
           .includes(searchTerm.vendor.toLowerCase())) &&
+      (!searchTerm.uploadedOn ||
+        device.uploadedOn.includes(searchTerm.uploadedOn)) &&
       (!searchTerm.district ||
         device.district
           .toLowerCase()
@@ -181,376 +185,401 @@ const DeviceManagement = () => {
   }
 
   return (
-    <Flex flexDirection={"column"} gap={5} w={"80%"} mx={"auto"} my={10}>
-      <Text fontSize={"4xl"} fontWeight={"bold"}>
-        All Devices For {location.state.vendorName}
-      </Text>
-      <TotalStats />
-      <Card.Root
-        flexDirection={"column"}
-        py={5}
-        px={5}
-        rounded={"xl"}
-        shadow={"2xl"}
-        justifyContent={"space-between"}
-      >
-        <Text mb={2} fontSize={"2xl"}>
-          Apply Filters:
+    <Box position={"relative"} overflow={"hidden"}>
+      <div className="bg"></div>
+      <div className="bg bg2"></div>
+      <div className="bg bg3"></div>
+
+      <Flex flexDirection={"column"} gap={5} w={"80%"} mx={"auto"} my={10}>
+        <Text fontSize={"4xl"} fontWeight={"bold"}>
+          All Devices For {location.state.vendorName}
         </Text>
-        <Grid
-          shadowColor={"white"}
-          gridTemplateColumns={{ md: "repeat(1,1fr)", lg: "repeat(4,1fr)" }}
-          gap={10}
+        <TotalStats />
+        <Card.Root
+          flexDirection={"column"}
+          py={5}
+          px={5}
+          rounded={"xl"}
+          shadow={"2xl"}
+          justifyContent={"space-between"}
         >
-          <Box
-            name="district"
-            rounded={"md"}
-            fontSize={"0.87rem"}
-            p={2}
-            as={"select"}
-            value={searchTerm.district}
-            onChange={handleChange}
+          <Text mb={2} fontSize={"2xl"}>
+            Apply Filters:
+          </Text>
+          <Grid
+            shadowColor={"white"}
+            gridTemplateColumns={{ md: "repeat(1,1fr)", lg: "repeat(3,1fr)" }}
+            gap={10}
           >
-            <option value="">All Districts</option>
-            {allDistricts.map((district, index) => (
-              <option value={district} key={index}>
-                {district}
-              </option>
-            ))}
-          </Box>
-          <Box
-            name="block"
-            rounded={"md"}
-            fontSize={"0.87rem"}
-            p={2}
-            as={"select"}
-            value={searchTerm.block}
-            onChange={handleChange}
-          >
-            <option value="">All Blocks</option>
-            {allBlocks.map((block, index) => (
-              <option value={block} key={index}>
-                {block}
-              </option>
-            ))}
-          </Box>
-          <Box
-            name="panchayat"
-            rounded={"md"}
-            fontSize={"0.87rem"}
-            p={2}
-            as={"select"}
-            value={searchTerm.panchayat}
-            onChange={handleChange}
-          >
-            <option value="">All Panchayats</option>
-            {allPanchayats.map((panchayat, index) => (
-              <option value={panchayat} key={index}>
-                {panchayat}
-              </option>
-            ))}
-          </Box>
-        </Grid>
-      </Card.Root>
+            <Box
+              name="district"
+              rounded={"md"}
+              fontSize={"0.87rem"}
+              p={2}
+              as={"select"}
+              value={searchTerm.district}
+              onChange={handleChange}
+            >
+              <option value="">All Districts</option>
+              {allDistricts.map((district, index) => (
+                <option value={district} key={index}>
+                  {district}
+                </option>
+              ))}
+            </Box>
+            <Box
+              name="block"
+              rounded={"md"}
+              fontSize={"0.87rem"}
+              p={2}
+              as={"select"}
+              value={searchTerm.block}
+              onChange={handleChange}
+            >
+              <option value="">All Blocks</option>
+              {allBlocks.map((block, index) => (
+                <option value={block} key={index}>
+                  {block}
+                </option>
+              ))}
+            </Box>
+            <Box
+              name="panchayat"
+              rounded={"md"}
+              fontSize={"0.87rem"}
+              p={2}
+              as={"select"}
+              value={searchTerm.panchayat}
+              onChange={handleChange}
+            >
+              <option value="">All Panchayats</option>
+              {allPanchayats.map((panchayat, index) => (
+                <option value={panchayat} key={index}>
+                  {panchayat}
+                </option>
+              ))}
+            </Box>
+          </Grid>
+        </Card.Root>
 
-      {/* Breadcrumbs showing different levels of search */}
-      {(searchTerm.vendor ||
-        searchTerm.district ||
-        searchTerm.block ||
-        searchTerm.panchayat) && (
-        <Alert
-          variant={"subtle"}
-          icon={<ChevronRight />}
-          title={`Search Results (${filteredDevices.length})`}
-        >
-          <BreadcrumbRoot size="lg" separator={<ChevronsRight />}>
-            {searchTerm.district ? (
-              !searchTerm.block && !searchTerm.panchayat ? (
-                <BreadcrumbCurrentLink>
-                  District: {searchTerm.district}
-                </BreadcrumbCurrentLink>
-              ) : (
-                <BreadcrumbLink>District: {searchTerm.district}</BreadcrumbLink>
-              )
-            ) : null}
-            {searchTerm.block ? (
-              !searchTerm.panchayat ? (
-                <BreadcrumbCurrentLink>
-                  Block: {searchTerm.block}
-                </BreadcrumbCurrentLink>
-              ) : (
-                <BreadcrumbLink>Block: {searchTerm.block}</BreadcrumbLink>
-              )
-            ) : null}
-            {searchTerm.panchayat && (
-              <BreadcrumbCurrentLink>
-                Panchayat: {searchTerm.panchayat}
-              </BreadcrumbCurrentLink>
-            )}
-          </BreadcrumbRoot>
-        </Alert>
-      )}
-      {/* Per Page Filter and Device ID Search */}
-      <Box
-        display={"grid"}
-        gridTemplateColumns={{ base: "1fr", lg: "repeat(2, 1fr)" }}
-        my={4}
-        gap={5}
-      >
-        {filteredDevices.length > 10 && (
-          <Box
-            as={"select"}
-            p={2}
-            value={devicesPerPage}
-            onChange={(e) => setDevicesPerPage(Number(e.target.value))}
-            rounded={"md"}
-            fontSize={"0.87rem"}
-          >
-            <Box as={"option"} value={10}>
-              10 per page
-            </Box>
-            <Box as={"option"} value={20}>
-              20 per page
-            </Box>
-            <Box as={"option"} value={50}>
-              50 per page
-            </Box>
-          </Box>
-        )}
-        <InputGroup startElement={<SearchCode />}>
-          <Input
+        {/* Breadcrumbs showing different levels of search */}
+        {(searchTerm.vendor ||
+          searchTerm.district ||
+          searchTerm.block ||
+          searchTerm.panchayat) && (
+          <Alert
             variant={"subtle"}
-            placeholder="Search For Device ID"
-            value={deviceIdSearch}
-            onChange={(e) => setDeviceIdSearch(e.target.value)}
-          />
-        </InputGroup>
-      </Box>
-      {deviceIdSearch.trim() && (
-        <Alert title="Searching for Device Id">{deviceIdSearch}</Alert>
-      )}
-      <Box
-        id="select"
-        fontSize={"0.9rem"}
-        as={"select"}
-        w={"100%"}
-        p={2}
-        value={selectedFirmware}
-        onChange={(e) => selectFirmware(e.target.value)}
-        rounded={"md"}
-      >
-        <option value="" disabled>
-          Select Firmware
-        </option>
-        {firmwares.map((firmware) => (
-          <option value={firmware.name} key={firmware._id}>
-            {firmware.name}
+            icon={<ChevronRight />}
+            title={`Search Results (${filteredDevices.length})`}
+          >
+            <BreadcrumbRoot size="lg" separator={<ChevronsRight />}>
+              {searchTerm.district ? (
+                !searchTerm.block && !searchTerm.panchayat ? (
+                  <BreadcrumbCurrentLink>
+                    District: {searchTerm.district}
+                  </BreadcrumbCurrentLink>
+                ) : (
+                  <BreadcrumbLink>
+                    District: {searchTerm.district}
+                  </BreadcrumbLink>
+                )
+              ) : null}
+              {searchTerm.block ? (
+                !searchTerm.panchayat ? (
+                  <BreadcrumbCurrentLink>
+                    Block: {searchTerm.block}
+                  </BreadcrumbCurrentLink>
+                ) : (
+                  <BreadcrumbLink>Block: {searchTerm.block}</BreadcrumbLink>
+                )
+              ) : null}
+              {searchTerm.panchayat && (
+                <BreadcrumbCurrentLink>
+                  Panchayat: {searchTerm.panchayat}
+                </BreadcrumbCurrentLink>
+              )}
+            </BreadcrumbRoot>
+          </Alert>
+        )}
+        {/* Per Page Filter and Device ID Search */}
+        <Box
+          display={"grid"}
+          gridTemplateColumns={{ base: "1fr", lg: "repeat(2, 1fr)" }}
+          my={4}
+          gap={5}
+        >
+          {filteredDevices.length > 10 && (
+            <Box
+              as={"select"}
+              p={2}
+              value={devicesPerPage}
+              onChange={(e) => setDevicesPerPage(Number(e.target.value))}
+              rounded={"md"}
+              fontSize={"0.87rem"}
+            >
+              <Box as={"option"} value={10}>
+                10 per page
+              </Box>
+              <Box as={"option"} value={20}>
+                20 per page
+              </Box>
+              <Box as={"option"} value={50}>
+                50 per page
+              </Box>
+            </Box>
+          )}
+          <InputGroup startElement={<SearchCode />}>
+            <Input
+              variant={"subtle"}
+              placeholder="Search For Device ID"
+              value={deviceIdSearch}
+              onChange={(e) => setDeviceIdSearch(e.target.value)}
+            />
+          </InputGroup>
+        </Box>
+        {deviceIdSearch.trim() && (
+          <Alert title="Searching for Device Id">{deviceIdSearch}</Alert>
+        )}
+        <Box
+          id="select"
+          fontSize={"0.9rem"}
+          as={"select"}
+          w={"100%"}
+          p={2}
+          value={selectedFirmware}
+          onChange={(e) => selectFirmware(e.target.value)}
+          rounded={"md"}
+        >
+          <option value="" disabled>
+            Select Firmware
           </option>
-        ))}
-      </Box>
-      <Table.ScrollArea borderWidth={"1px"} maxW={"100%"}>
-        <Table.Root
-          size={"md"}
-          variant={"outline"}
-          showColumnBorder
-          colorPalette={"blue"}
-        >
-          <Table.Header bg={"blue.700"} _light={{ bg: "blue.200" }}>
-            <Table.Row>
-              <Table.ColumnHeader onClick={handleSelectAll} cursor={"pointer"}>
-                Select All
-              </Table.ColumnHeader>
-              <Table.ColumnHeader>Device ID</Table.ColumnHeader>
+          {firmwares.map((firmware) => (
+            <option value={firmware.name} key={firmware._id}>
+              {firmware.name}
+            </option>
+          ))}
+        </Box>
+        <Table.ScrollArea borderWidth={"1px"} maxW={"100%"}>
+          <Table.Root
+            size={"md"}
+            variant={"outline"}
+            showColumnBorder
+            colorPalette={"blue"}
+          >
+            <Table.Header bg={"blue.700"} _light={{ bg: "blue.200" }}>
+              <Table.Row>
+                <Table.ColumnHeader
+                  onClick={handleSelectAll}
+                  cursor={"pointer"}
+                >
+                  Select All
+                </Table.ColumnHeader>
+                <Table.ColumnHeader>Device ID</Table.ColumnHeader>
 
-              <Table.ColumnHeader>District</Table.ColumnHeader>
-              <Table.ColumnHeader>Block</Table.ColumnHeader>
-              <Table.ColumnHeader>Panchayat</Table.ColumnHeader>
-              <Table.ColumnHeader>Firmware Status</Table.ColumnHeader>
-              <Table.ColumnHeader>Signal Strength</Table.ColumnHeader>
-              <Table.ColumnHeader>Last Updated</Table.ColumnHeader>
-            </Table.Row>
-          </Table.Header>
-          <Table.Body>
-            {currentDevices.map((device) => (
-              <Table.Row key={device._id}>
-                <Table.Cell>
-                  <Checkbox
-                    cursor={"pointer"}
-                    variant={"solid"}
-                    colorPalette={"green"}
-                    checked={selectedDevices.includes(device.deviceId)}
-                    onChange={() => selectDevice(device.deviceId)}
-                  />
-                </Table.Cell>
-                <Table.Cell>{device.deviceId}</Table.Cell>
-
-                <Table.Cell>{device.district}</Table.Cell>
-                <Table.Cell>{device.block}</Table.Cell>
-                <Table.Cell>{device.panchayat}</Table.Cell>
-                <Table.Cell>
-                  {device.firmwareStatus === "Null" && (
-                    <Badge
-                      variant={"solid"}
-                      size={{ base: "sm", lg: "md" }}
-                      colorPalette={"red"}
-                    >
-                      {device.firmwareStatus}
-                    </Badge>
-                  )}
-                  {device.firmwareStatus.includes("Pending") && (
-                    <Badge
-                      variant={"solid"}
-                      size={{ base: "sm", lg: "md" }}
-                      colorPalette={"yellow"}
-                    >
-                      {device.firmwareStatus}
-                    </Badge>
-                  )}
-                  {device.firmwareStatus.includes("Completed") && (
-                    <Badge
-                      variant={"solid"}
-                      size={{ base: "sm", lg: "md" }}
-                      colorPalette={"green"}
-                    >
-                      {device.firmwareStatus}
-                    </Badge>
-                  )}
-                </Table.Cell>
-                <Table.Cell>
-                  <Badge
-                    variant={"surface"}
-                    size={{ base: "sm", lg: "md" }}
-                    colorPalette={
-                      device.signalStrength > 20
-                        ? "green"
-                        : device.signalStrength > 10
-                          ? "yellow"
-                          : device.signalStrength > 0
-                            ? "red"
-                            : "gray"
-                    }
-                  >
-                    {device.signalStrength || "0"}
-                  </Badge>
-                </Table.Cell>
-                <Table.Cell>
-                  <Badge size={"md"}>
-                    {device.lastUpdated
-                      ? format(
-                          new Date(device.lastUpdated),
-                          "MMM d, yyyy, h:mm:ss a"
-                        )
-                      : "Not Available"}
-                  </Badge>
-                </Table.Cell>
+                <Table.ColumnHeader>District</Table.ColumnHeader>
+                <Table.ColumnHeader>Block</Table.ColumnHeader>
+                <Table.ColumnHeader>Panchayat</Table.ColumnHeader>
+                <Table.ColumnHeader>Firmware Status</Table.ColumnHeader>
+                <Table.ColumnHeader>Signal Strength</Table.ColumnHeader>
+                <Table.ColumnHeader>Last Updated</Table.ColumnHeader>
+                <Table.ColumnHeader>Uploaded On</Table.ColumnHeader>
               </Table.Row>
-            ))}
-          </Table.Body>
-        </Table.Root>
-      </Table.ScrollArea>
-      {/* Pagination Controls */}
-      <Box
-        display="flex"
-        justifyContent="flex-start"
-        alignItems="center"
-        flexWrap={"wrap"}
-      >
-        <Button
-          size={{ base: "xs", lg: "sm" }}
-          mx={1}
-          onClick={() => currentPage > 1 && paginate(currentPage - 1)}
-          disabled={currentPage === 1}
-          colorScheme="teal"
-          variant={"outline"}
+            </Table.Header>
+            <Table.Body>
+              {currentDevices.map((device) => (
+                <Table.Row key={device._id}>
+                  <Table.Cell>
+                    <Checkbox
+                      cursor={"pointer"}
+                      variant={"solid"}
+                      colorPalette={"green"}
+                      checked={selectedDevices.includes(device.deviceId)}
+                      onChange={() => selectDevice(device.deviceId)}
+                    />
+                  </Table.Cell>
+                  <Table.Cell>{device.deviceId}</Table.Cell>
+
+                  <Table.Cell>{device.district}</Table.Cell>
+                  <Table.Cell>{device.block}</Table.Cell>
+                  <Table.Cell>{device.panchayat}</Table.Cell>
+                  <Table.Cell>
+                    {device.firmwareStatus === "Null" && (
+                      <Badge
+                        variant={"solid"}
+                        size={{ base: "sm", lg: "md" }}
+                        colorPalette={"red"}
+                      >
+                        {device.firmwareStatus}
+                      </Badge>
+                    )}
+                    {device.firmwareStatus.includes("Pending") && (
+                      <Badge
+                        variant={"solid"}
+                        size={{ base: "sm", lg: "md" }}
+                        colorPalette={"yellow"}
+                      >
+                        {device.firmwareStatus}
+                      </Badge>
+                    )}
+                    {device.firmwareStatus.includes("Completed") && (
+                      <Badge
+                        variant={"solid"}
+                        size={{ base: "sm", lg: "md" }}
+                        colorPalette={"green"}
+                      >
+                        {device.firmwareStatus}
+                      </Badge>
+                    )}
+                  </Table.Cell>
+                  <Table.Cell>
+                    <Badge
+                      variant={"surface"}
+                      size={{ base: "sm", lg: "md" }}
+                      colorPalette={
+                        device.signalStrength > 20
+                          ? "green"
+                          : device.signalStrength > 10
+                            ? "yellow"
+                            : device.signalStrength > 0
+                              ? "red"
+                              : "gray"
+                      }
+                    >
+                      {device.signalStrength || "0"}
+                    </Badge>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <Badge size={"md"}>
+                      {device.lastUpdated
+                        ? format(
+                            new Date(device.lastUpdated),
+                            "MMM d, yyyy, h:mm:ss a"
+                          )
+                        : "Not Available"}
+                    </Badge>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <Badge size={"md"} variant={"subtle"}>
+                      {device.createdAt
+                        ? format(
+                            new Date(device.createdAt),
+                            "MMM d, yyyy, h:mm:ss a"
+                          )
+                        : "Not Available"}
+                    </Badge>
+                  </Table.Cell>
+                </Table.Row>
+              ))}
+            </Table.Body>
+          </Table.Root>
+        </Table.ScrollArea>
+        {/* Pagination Controls */}
+        <Box
+          display="flex"
+          justifyContent="flex-start"
+          alignItems="center"
+          flexWrap={"wrap"}
         >
-          <LuChevronLeft />
-        </Button>
-        {generatePageNumbers().map((page, i) => (
           <Button
-            key={i}
             size={{ base: "xs", lg: "sm" }}
             mx={1}
-            onClick={() => page !== "..." && paginate(page)}
-            isActive={page === currentPage}
-            colorScheme={page === currentPage ? "teal" : "gray"}
-            variant={page === currentPage ? "solid" : "outline"}
-            disabled={page === "..."}
-          >
-            {page}
-          </Button>
-        ))}
-        <Button
-          size={{ base: "xs", lg: "sm" }}
-          mx={1}
-          onClick={() => currentPage < totalPages && paginate(currentPage + 1)}
-          disabled={currentPage === totalPages}
-          colorScheme="teal"
-          variant={"outline"}
-        >
-          <LuChevronRight />
-        </Button>
-      </Box>
-      <ActionBarRoot
-        open={selectedDevices.length > 0}
-        closeOnInteractOutside={false}
-      >
-        <ActionBarContent>
-          <ActionBarSelectionTrigger>
-            {selectedDevices.length === 1
-              ? `${selectedDevices.length} Device Selected`
-              : `${selectedDevices.length} Devices Selected`}
-          </ActionBarSelectionTrigger>
-          <ActionBarSeparator />
-
-          <Button
-            onClick={clearSelectedDevices}
+            onClick={() => currentPage > 1 && paginate(currentPage - 1)}
+            disabled={currentPage === 1}
+            colorScheme="teal"
             variant={"outline"}
-            size={"sm"}
-            colorPalette={"red"}
           >
-            Cancel
+            <LuChevronLeft />
           </Button>
+          {generatePageNumbers().map((page, i) => (
+            <Button
+              key={i}
+              size={{ base: "xs", lg: "sm" }}
+              mx={1}
+              onClick={() => page !== "..." && paginate(page)}
+              isActive={page === currentPage}
+              colorScheme={page === currentPage ? "teal" : "gray"}
+              variant={page === currentPage ? "solid" : "outline"}
+              disabled={page === "..."}
+            >
+              {page}
+            </Button>
+          ))}
+          <Button
+            size={{ base: "xs", lg: "sm" }}
+            mx={1}
+            onClick={() =>
+              currentPage < totalPages && paginate(currentPage + 1)
+            }
+            disabled={currentPage === totalPages}
+            colorScheme="teal"
+            variant={"outline"}
+          >
+            <LuChevronRight />
+          </Button>
+        </Box>
+        <ActionBarRoot
+          open={selectedDevices.length > 0}
+          closeOnInteractOutside={false}
+        >
+          <ActionBarContent>
+            <ActionBarSelectionTrigger>
+              {selectedDevices.length === 1
+                ? `${selectedDevices.length} Device Selected`
+                : `${selectedDevices.length} Devices Selected`}
+            </ActionBarSelectionTrigger>
+            <ActionBarSeparator />
 
-          <DialogRoot placement="center">
-            <DialogTrigger asChild>
-              <Button
-                variant="surface"
-                colorPalette="green"
-                size="sm"
-                disabled={!selectedFirmware || selectedDevices.length === 0}
-              >
-                <FileCog />
-                Update
-              </Button>
-            </DialogTrigger>
+            <Button
+              onClick={clearSelectedDevices}
+              variant={"outline"}
+              size={"sm"}
+              colorPalette={"red"}
+            >
+              Cancel
+            </Button>
 
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle> Please Confirm</DialogTitle>
-              </DialogHeader>
-              <DialogBody>
-                <DialogDescription>
-                  You are about to initiate update for {selectedDevices.length}{" "}
-                  devices. With firmware version {firmwares.map((f) => f.name)}
-                </DialogDescription>
-              </DialogBody>
-              <DialogFooter>
-                <DialogActionTrigger asChild>
-                  <Button variant="subtle">Cancel</Button>
-                </DialogActionTrigger>
+            <DialogRoot placement="center">
+              <DialogTrigger asChild>
                 <Button
-                  colorPalette={"green"}
-                  variant={"solid"}
-                  onClick={initiateUpdate}
+                  variant="surface"
+                  colorPalette="green"
+                  size="sm"
+                  disabled={!selectedFirmware || selectedDevices.length === 0}
                 >
-                  Proceed
+                  <FileCog />
+                  Update
                 </Button>
-              </DialogFooter>
-            </DialogContent>
-          </DialogRoot>
-        </ActionBarContent>
-      </ActionBarRoot>
-    </Flex>
+              </DialogTrigger>
+
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle> Please Confirm</DialogTitle>
+                </DialogHeader>
+                <DialogBody>
+                  <DialogDescription>
+                    You are about to initiate update for{" "}
+                    {selectedDevices.length} devices. With firmware version{" "}
+                    {firmwares.map((f) => f.name)}
+                  </DialogDescription>
+                </DialogBody>
+                <DialogFooter>
+                  <DialogActionTrigger asChild>
+                    <Button variant="subtle">Cancel</Button>
+                  </DialogActionTrigger>
+                  <Button
+                    colorPalette={"green"}
+                    variant={"solid"}
+                    onClick={initiateUpdate}
+                  >
+                    Proceed
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </DialogRoot>
+          </ActionBarContent>
+        </ActionBarRoot>
+      </Flex>
+    </Box>
   );
 };
 
