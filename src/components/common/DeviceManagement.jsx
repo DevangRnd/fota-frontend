@@ -43,6 +43,7 @@ import {
 
 import TotalStats from "./TotalStats";
 import { ChevronRight, ChevronsRight, FileCog, SearchCode } from "lucide-react";
+import { useLocation, useParams } from "react-router-dom";
 const DeviceManagement = () => {
   const {
     loading,
@@ -56,7 +57,7 @@ const DeviceManagement = () => {
     initiateUpdate,
     clearSelectedDevices,
   } = useDeviceStore();
-
+  const location = useLocation();
   // State for search, pagination, and items per page
   const [searchTerm, setSearchTerm] = useState({
     vendor: "",
@@ -76,13 +77,16 @@ const DeviceManagement = () => {
   // const [secondarySearchTerm, setSecondarySearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [devicesPerPage, setDevicesPerPage] = useState(10);
-
+  const { vendorId } = useParams();
   // Fetch data when component mounts
   useEffect(() => {
-    fetchData();
+    fetchData(vendorId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  if (!allDevices) {
+    return <Text>No Devices Found For This Vendor</Text>;
+  }
   // Filtered devices based on search term
   const filteredDevices = allDevices.filter((device) => {
     const search = deviceIdSearch.toLowerCase().trim();
@@ -102,7 +106,8 @@ const DeviceManagement = () => {
         device.panchayat
           .toLowerCase()
           .includes(searchTerm.panchayat.toLowerCase())) &&
-      (!search || device.deviceId.toLowerCase().includes(search))
+      (!search || device.deviceId.toLowerCase().includes(search)) &&
+      !searchTerm.uploadedOn
     );
   });
 
@@ -158,7 +163,7 @@ const DeviceManagement = () => {
     deviceIds.forEach(selectDevice);
   };
 
-  const allVendors = [...new Set(allDevices.map((device) => device.vendor))];
+  // const allVendors = [...new Set(allDevices.map((device) => device.vendor))];
   const allDistricts = [
     ...new Set(allDevices.map((device) => device.district)),
   ];
@@ -177,10 +182,12 @@ const DeviceManagement = () => {
 
   return (
     <Flex flexDirection={"column"} gap={5} w={"80%"} mx={"auto"} my={10}>
+      <Text fontSize={"4xl"} fontWeight={"bold"}>
+        All Devices For {location.state.vendorName}
+      </Text>
       <TotalStats />
       <Card.Root
         flexDirection={"column"}
-        // bg={"blue.500"}
         py={5}
         px={5}
         rounded={"xl"}
@@ -195,22 +202,6 @@ const DeviceManagement = () => {
           gridTemplateColumns={{ md: "repeat(1,1fr)", lg: "repeat(4,1fr)" }}
           gap={10}
         >
-          <Box
-            name="vendor"
-            rounded={"md"}
-            fontSize={"0.87rem"}
-            p={2}
-            as={"select"}
-            value={searchTerm.vendor}
-            onChange={handleChange}
-          >
-            <option value="">All Vendors</option>
-            {allVendors.map((vendor, index) => (
-              <option value={vendor} key={index}>
-                {vendor}
-              </option>
-            ))}
-          </Box>
           <Box
             name="district"
             rounded={"md"}
@@ -273,17 +264,6 @@ const DeviceManagement = () => {
           title={`Search Results (${filteredDevices.length})`}
         >
           <BreadcrumbRoot size="lg" separator={<ChevronsRight />}>
-            {searchTerm.vendor ? (
-              !searchTerm.district &&
-              !searchTerm.block &&
-              !searchTerm.panchayat ? (
-                <BreadcrumbCurrentLink>
-                  Vendor: {searchTerm.vendor}
-                </BreadcrumbCurrentLink>
-              ) : (
-                <BreadcrumbLink>Vendor: {searchTerm.vendor}</BreadcrumbLink>
-              )
-            ) : null}
             {searchTerm.district ? (
               !searchTerm.block && !searchTerm.panchayat ? (
                 <BreadcrumbCurrentLink>
@@ -381,7 +361,7 @@ const DeviceManagement = () => {
                 Select All
               </Table.ColumnHeader>
               <Table.ColumnHeader>Device ID</Table.ColumnHeader>
-              <Table.ColumnHeader>Vendor</Table.ColumnHeader>
+
               <Table.ColumnHeader>District</Table.ColumnHeader>
               <Table.ColumnHeader>Block</Table.ColumnHeader>
               <Table.ColumnHeader>Panchayat</Table.ColumnHeader>
@@ -403,7 +383,7 @@ const DeviceManagement = () => {
                   />
                 </Table.Cell>
                 <Table.Cell>{device.deviceId}</Table.Cell>
-                <Table.Cell>{device.vendor}</Table.Cell>
+
                 <Table.Cell>{device.district}</Table.Cell>
                 <Table.Cell>{device.block}</Table.Cell>
                 <Table.Cell>{device.panchayat}</Table.Cell>

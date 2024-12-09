@@ -7,12 +7,39 @@ const useUploadStore = create((set, get) => ({
   loading: false,
   successfulDevices: [],
   failedDevices: [],
-
+  allProjects: [],
   setFile: (file) => set({ file }),
 
   resetDevices: () => set({ successfulDevices: [], failedDevices: [] }),
 
-  uploadFile: async () => {
+  getAllProjects: async () => {
+    set({ loading: true });
+    try {
+      const response = await axios.get(
+        "http://103.127.29.215/api/get-projects"
+      );
+      set({ allProjects: response.data.projects });
+    } catch (error) {
+      toaster.create({
+        title: "Error Occurred",
+        description: "Please try again later.",
+        duration: 5000,
+        type: "error",
+      });
+      console.error(error);
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  // Optional: Add this function if vendors need to be fetched individually
+  // getVendorsForProject: (projectId) => {
+  //   const { allProjects } = get();
+  //   const project = allProjects.find((p) => p._id === projectId);
+  //   return project ? project.vendors : [];
+  // },
+
+  uploadFile: async (vendorId) => {
     set({ loading: true });
     const { file } = get();
 
@@ -33,14 +60,13 @@ const useUploadStore = create((set, get) => ({
 
     try {
       const response = await axios.post(
-        "http://103.127.29.215/api/add-device",
+        `http://103.127.29.215/api/vendor/${vendorId}/add-device`,
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
         }
       );
 
-      // Extract the correct data from the response
       const successfulDevices = response.data.addedDevices || [];
       const failedDevices = response.data.errors || [];
 
@@ -49,16 +75,10 @@ const useUploadStore = create((set, get) => ({
         failedDevices,
       });
 
-      console.log("Response data:", response.data);
-      console.log(
-        `Successful: ${successfulDevices.length}, Failed: ${failedDevices.length}`
-      );
-
-      // Check conditions in the correct order
       if (successfulDevices.length > 0 && failedDevices.length > 0) {
         toaster.create({
           title: "Partial Success",
-          description: `${successfulDevices.length} devices were successfully uploaded, ${failedDevices.length} devices failed.`,
+          description: `${successfulDevices.length} devices uploaded successfully, ${failedDevices.length} failed.`,
           duration: 5000,
           type: "warning",
           isClosable: true,
@@ -66,14 +86,14 @@ const useUploadStore = create((set, get) => ({
       } else if (successfulDevices.length > 0) {
         toaster.success({
           title: "Upload Successful",
-          description: `${successfulDevices.length} devices were uploaded successfully.`,
+          description: `${successfulDevices.length} devices uploaded successfully.`,
           duration: 5000,
           isClosable: true,
         });
       } else if (failedDevices.length > 0) {
         toaster.error({
           title: "Upload Failed",
-          description: `Failed to upload devices: ${failedDevices.length}`,
+          description: `Failed to upload ${failedDevices.length} devices.`,
           duration: 5000,
           isClosable: true,
         });

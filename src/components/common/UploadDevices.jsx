@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -13,11 +14,12 @@ import {
   DialogCloseTrigger,
   DialogContent,
   DialogHeader,
-  DialogRoot,
   DialogTitle,
+  DialogRoot,
   DialogTrigger,
 } from "../ui/dialog";
 import { CloudUpload } from "lucide-react";
+
 const UploadDevices = () => {
   const {
     file,
@@ -27,16 +29,37 @@ const UploadDevices = () => {
     setFile,
     uploadFile,
     resetDevices,
+    getAllProjects,
+    allProjects,
   } = useUploadStore();
 
+  const [selectedProject, setSelectedProject] = useState("");
+  const [selectedVendor, setSelectedVendor] = useState("");
+
+  // Fetch projects when the component mounts
+  useEffect(() => {
+    getAllProjects();
+  }, []);
+
+  // Handle file input change
   const handleFileChange = (event) => {
     setFile(event.target.files[0]);
     resetDevices();
   };
 
+  // Handle upload button click
   const handleUpload = async () => {
-    await uploadFile();
+    if (!selectedVendor) {
+      alert("Please select a vendor before uploading.");
+      return;
+    }
+    await uploadFile(selectedVendor);
   };
+
+  // Get vendors from the selected project
+  const vendors =
+    allProjects.find((project) => project._id === selectedProject)?.vendors ||
+    [];
 
   return (
     <Flex
@@ -45,8 +68,45 @@ const UploadDevices = () => {
       display="flex"
       justifyContent="center"
       alignItems="center"
-      direction={"column"}
+      direction="column"
     >
+      <Box w="md">
+        {/* Project Selection */}
+        <Box as="select" onChange={(e) => setSelectedProject(e.target.value)}>
+          <option value="" disabled selected>
+            Select Project
+          </option>
+          {allProjects.map((project) => (
+            <option value={project._id} key={project._id}>
+              {project.name}
+            </option>
+          ))}
+        </Box>
+
+        {/* Vendor Selection */}
+        <Box
+          as="select"
+          onChange={(e) => setSelectedVendor(e.target.value)}
+          disabled={!selectedProject}
+        >
+          <option value="" disabled selected>
+            {selectedProject ? "Select Vendor" : "Select a project first"}
+          </option>
+          {vendors.length > 0 ? (
+            vendors.map((vendor) => (
+              <option value={vendor._id} key={vendor._id}>
+                {vendor.name}
+              </option>
+            ))
+          ) : (
+            <option value="" disabled>
+              No vendors available
+            </option>
+          )}
+        </Box>
+      </Box>
+
+      {/* File Upload */}
       <Box
         p={4}
         borderWidth="1px"
@@ -64,59 +124,51 @@ const UploadDevices = () => {
           onChange={handleFileChange}
         />
         {file && (
-          <Badge variant={"subtle"} fontSize="sm" colorPalette={"green"} my={2}>
+          <Badge variant="subtle" fontSize="sm" colorScheme="green" my={2}>
             Selected File: {file.name}
           </Badge>
         )}
         {loading ? (
-          <Button width={"full"} my={2}>
+          <Button width="full" my={2}>
             <Spinner mr={2} />
-            Uploading..
+            Uploading...
           </Button>
         ) : (
           <Button
             my={2}
-            width={"full"}
+            width="full"
             onClick={handleUpload}
-            disabled={!file || loading}
+            disabled={!file || !selectedVendor || loading}
           >
             <CloudUpload />
             Upload File
           </Button>
         )}
       </Box>
+
+      {/* Results */}
       {(successfulDevices.length > 0 || failedDevices.length > 0) && (
         <Flex gap={4} mt={6}>
           {successfulDevices.length > 0 && (
             <DialogRoot size="full" motionPreset="slide-in-bottom">
               <DialogTrigger asChild>
-                <Button variant={"outline"} color={"green.500"}>
+                <Button variant="outline" colorScheme="green">
                   Successful Devices ({successfulDevices.length})
                 </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Successful Devices:</DialogTitle>
+                  <DialogTitle>Successful Devices</DialogTitle>
                   <DialogCloseTrigger />
                 </DialogHeader>
                 <DialogBody>
                   <Box
-                    display={"grid"}
-                    gridTemplateColumns={{
-                      sm: "repeat(1,1fr)",
-                      md: "repeat(2,1fr)",
-                      lg: "repeat(3,1fr)",
-                      xl: "repeat(4,1fr)",
-                    }}
+                    display="grid"
+                    gridTemplateColumns="repeat(auto-fit, minmax(100px, 1fr))"
                     gap={5}
                   >
                     {successfulDevices.map((deviceId) => (
-                      <Badge
-                        variant={"surface"}
-                        py={2}
-                        colorPalette={"green"}
-                        key={deviceId}
-                      >
+                      <Badge key={deviceId} variant="solid" colorScheme="green">
                         {deviceId}
                       </Badge>
                     ))}
@@ -129,33 +181,23 @@ const UploadDevices = () => {
           {failedDevices.length > 0 && (
             <DialogRoot size="full" motionPreset="slide-in-bottom">
               <DialogTrigger asChild>
-                <Button variant={"outline"} color={"red.500"}>
+                <Button variant="outline" colorScheme="red">
                   Failed Devices ({failedDevices.length})
                 </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Failed Devices:</DialogTitle>
+                  <DialogTitle>Failed Devices</DialogTitle>
                   <DialogCloseTrigger />
                 </DialogHeader>
                 <DialogBody>
                   <Box
-                    display={"grid"}
-                    gridTemplateColumns={{
-                      sm: "repeat(1,1fr)",
-                      md: "repeat(2,1fr)",
-                      lg: "repeat(3,1fr)",
-                      xl: "repeat(4,1fr)",
-                    }}
+                    display="grid"
+                    gridTemplateColumns="repeat(auto-fit, minmax(100px, 1fr))"
                     gap={5}
                   >
                     {failedDevices.map((deviceId) => (
-                      <Badge
-                        variant={"surface"}
-                        py={2}
-                        colorPalette={"red"}
-                        key={deviceId}
-                      >
+                      <Badge key={deviceId} variant="solid" colorScheme="red">
                         {deviceId}
                       </Badge>
                     ))}

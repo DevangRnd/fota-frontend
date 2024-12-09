@@ -1,10 +1,11 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   Menu as MenuIcon,
   LogOut,
   Laptop,
   Upload,
   Box as BoxIcon,
+  Home,
 } from "lucide-react";
 
 import { MenuRoot, MenuTrigger, MenuContent, MenuItem } from "../ui/menu";
@@ -38,6 +39,7 @@ import { toaster } from "../ui/toaster";
 import useAuthStore from "../../store/authStore";
 
 const Navbar = () => {
+  const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuthStore();
 
@@ -53,7 +55,8 @@ const Navbar = () => {
   const getInitials = (username) => {
     return username ? username.slice(0, 2).toUpperCase() : "U";
   };
-
+  // const isHiddenPage =
+  //   location.pathname === "/" || location.pathname.endsWith("/all-vendors");
   // eslint-disable-next-line react/prop-types
   const NavItems = ({ mobile = false }) => (
     <Flex
@@ -61,59 +64,61 @@ const Navbar = () => {
       alignItems={mobile ? "start" : "center"}
       gap={mobile ? 4 : 6}
     >
-      <NavLink
-        to="/"
-        style={({ isActive }) => ({
-          display: "flex",
-          alignItems: "center",
-          gap: "6px",
-          padding: "6px 12px",
-          borderRadius: "6px",
-          transition: "all 0.2s",
-          background: isActive ? "var(--chakra-colors-white)" : "transparent",
-          color: isActive ? "black" : "inherit",
-          fontSize: "1rem",
-        })}
-      >
-        <Laptop size={18} />
-        <span>All Devices</span>
-      </NavLink>
+      <>
+        <NavLink
+          to="/"
+          style={({ isActive }) => ({
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+            padding: "6px 12px",
+            borderRadius: "6px",
+            transition: "all 0.2s",
+            background: isActive ? "var(--chakra-colors-white)" : "transparent",
+            color: isActive ? "black" : "inherit",
+            fontSize: "1rem",
+          })}
+        >
+          <Home size={18} />
+          <span>Home</span>
+        </NavLink>
 
-      <NavLink
-        to="/firmware-upload"
-        style={({ isActive }) => ({
-          display: "flex",
-          alignItems: "center",
-          gap: "6px",
-          padding: "6px 12px",
-          borderRadius: "6px",
-          transition: "all 0.2s",
-          background: isActive ? "var(--chakra-colors-white)" : "transparent",
-          color: isActive ? "black" : "inherit",
-          fontSize: "1rem",
-        })}
-      >
-        <Upload size={18} />
-        <span>Firmware Upload</span>
-      </NavLink>
+        <NavLink
+          to="/firmware-upload"
+          style={({ isActive }) => ({
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+            padding: "6px 12px",
+            borderRadius: "6px",
+            transition: "all 0.2s",
+            background: isActive ? "var(--chakra-colors-white)" : "transparent",
+            color: isActive ? "black" : "inherit",
+            fontSize: "1rem",
+          })}
+        >
+          <Upload size={18} />
+          <span>Firmware Upload</span>
+        </NavLink>
 
-      <NavLink
-        to="/upload-devices"
-        style={({ isActive }) => ({
-          display: "flex",
-          alignItems: "center",
-          gap: "6px",
-          padding: "6px 12px",
-          borderRadius: "6px",
-          transition: "all 0.2s",
-          background: isActive ? "var(--chakra-colors-white)" : "transparent",
-          color: isActive ? "black" : "inherit",
-          fontSize: "1rem",
-        })}
-      >
-        <BoxIcon size={18} />
-        <span>Upload Devices</span>
-      </NavLink>
+        <NavLink
+          to="/upload-devices"
+          style={({ isActive }) => ({
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+            padding: "6px 12px",
+            borderRadius: "6px",
+            transition: "all 0.2s",
+            background: isActive ? "var(--chakra-colors-white)" : "transparent",
+            color: isActive ? "black" : "inherit",
+            fontSize: "1rem",
+          })}
+        >
+          <BoxIcon size={18} />
+          <span>Upload Devices</span>
+        </NavLink>
+      </>
     </Flex>
   );
 
@@ -125,7 +130,7 @@ const Navbar = () => {
       zIndex="50"
       borderBottom="1px"
       borderColor="gray.200"
-      bg="blue.500"
+      bg="blue.600"
       backdropFilter="blur(10px)"
       w={"100%"}
     >

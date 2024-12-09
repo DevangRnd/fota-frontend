@@ -13,8 +13,10 @@ import LoginForm from "./components/common/LoginForm";
 import ProtectedRoute from "./components/common/ProtectedRoute";
 import PublicRoute from "./components/common/PublicRoute";
 import PageProgress from "./components/common/PageProgress";
+import ProjectPage from "./components/common/ProjectPage";
+import VendorPage from "./components/common/VendorPage";
 
-const Layout = () => {
+const MainLayout = () => {
   return (
     <>
       <PageProgress />
@@ -39,11 +41,16 @@ const router = createBrowserRouter(
       <Route
         element={
           <ProtectedRoute>
-            <Layout />
+            <MainLayout />
           </ProtectedRoute>
         }
       >
-        <Route path="/" element={<DeviceManagement />} />
+        <Route index element={<ProjectPage />} />
+        <Route path="/:projectId/all-vendors" element={<VendorPage />} />
+        <Route
+          path="/vendor/:vendorId/devices"
+          element={<DeviceManagement />}
+        />
         <Route path="/firmware-upload" element={<FirmwareUpload />} />
         <Route path="/upload-devices" element={<UploadDevices />} />
       </Route>
