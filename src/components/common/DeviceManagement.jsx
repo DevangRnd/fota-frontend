@@ -189,7 +189,6 @@ const DeviceManagement = () => {
       <div className="bg"></div>
       <div className="bg bg2"></div>
       <div className="bg bg3"></div>
-
       <Flex flexDirection={"column"} gap={5} w={"80%"} mx={"auto"} my={10}>
         <Text fontSize={"4xl"} fontWeight={"bold"}>
           All Devices For {location.state.vendorName}
@@ -203,7 +202,7 @@ const DeviceManagement = () => {
           shadow={"2xl"}
           justifyContent={"space-between"}
         >
-          <Text mb={2} fontSize={"2xl"}>
+          <Text mb={4} fontSize={"2xl"}>
             Apply Filters:
           </Text>
           <Grid
@@ -219,6 +218,8 @@ const DeviceManagement = () => {
               as={"select"}
               value={searchTerm.district}
               onChange={handleChange}
+              _focus={{ outline: "2px solid gray", outlineOffset: "2px" }}
+              transition={"all 0.1s ease-in-out"}
             >
               <option value="">All Districts</option>
               {allDistricts.map((district, index) => (
@@ -235,6 +236,8 @@ const DeviceManagement = () => {
               as={"select"}
               value={searchTerm.block}
               onChange={handleChange}
+              _focus={{ outline: "2px solid gray", outlineOffset: "2px" }}
+              transition={"all 0.1s ease-in-out"}
             >
               <option value="">All Blocks</option>
               {allBlocks.map((block, index) => (
@@ -251,6 +254,8 @@ const DeviceManagement = () => {
               as={"select"}
               value={searchTerm.panchayat}
               onChange={handleChange}
+              _focus={{ outline: "2px solid gray", outlineOffset: "2px" }}
+              transition={"all 0.1s ease-in-out"}
             >
               <option value="">All Panchayats</option>
               {allPanchayats.map((panchayat, index) => (

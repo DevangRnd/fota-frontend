@@ -1,8 +1,7 @@
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import {
   Menu as MenuIcon,
   LogOut,
-  Laptop,
   Upload,
   Box as BoxIcon,
   Home,
@@ -39,7 +38,6 @@ import { toaster } from "../ui/toaster";
 import useAuthStore from "../../store/authStore";
 
 const Navbar = () => {
-  const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuthStore();
 
@@ -58,69 +56,39 @@ const Navbar = () => {
   // const isHiddenPage =
   //   location.pathname === "/" || location.pathname.endsWith("/all-vendors");
   // eslint-disable-next-line react/prop-types
-  const NavItems = ({ mobile = false }) => (
-    <Flex
-      direction={mobile ? "column" : "row"}
-      alignItems={mobile ? "start" : "center"}
-      gap={mobile ? 4 : 6}
-    >
-      <>
-        <NavLink
-          to="/"
-          style={({ isActive }) => ({
-            display: "flex",
-            alignItems: "center",
-            gap: "6px",
-            padding: "6px 12px",
-            borderRadius: "6px",
-            transition: "all 0.2s",
-            background: isActive ? "var(--chakra-colors-white)" : "transparent",
-            color: isActive ? "black" : "inherit",
-            fontSize: "1rem",
-          })}
+  const NavItems = ({ mobile = false }) => {
+    const location = useLocation();
+    const isActive = (path) => location.pathname === path;
+    return (
+      <Flex
+        direction={mobile ? "column" : "row"}
+        alignItems={mobile ? "start" : "center"}
+        gap={mobile ? 4 : 6}
+      >
+        <Button asChild variant={isActive("/") ? "solid" : "ghost"}>
+          <NavLink to="/">
+            <Home size={18} /> Home
+          </NavLink>
+        </Button>
+        <Button
+          asChild
+          variant={isActive("/firmware-upload") ? "solid" : "ghost"}
         >
-          <Home size={18} />
-          <span>Home</span>
-        </NavLink>
-
-        <NavLink
-          to="/firmware-upload"
-          style={({ isActive }) => ({
-            display: "flex",
-            alignItems: "center",
-            gap: "6px",
-            padding: "6px 12px",
-            borderRadius: "6px",
-            transition: "all 0.2s",
-            background: isActive ? "var(--chakra-colors-white)" : "transparent",
-            color: isActive ? "black" : "inherit",
-            fontSize: "1rem",
-          })}
+          <NavLink to="/firmware-upload">
+            <Upload size={18} /> Firmware Upload
+          </NavLink>
+        </Button>
+        <Button
+          asChild
+          variant={isActive("/upload-devices") ? "solid" : "ghost"}
         >
-          <Upload size={18} />
-          <span>Firmware Upload</span>
-        </NavLink>
-
-        <NavLink
-          to="/upload-devices"
-          style={({ isActive }) => ({
-            display: "flex",
-            alignItems: "center",
-            gap: "6px",
-            padding: "6px 12px",
-            borderRadius: "6px",
-            transition: "all 0.2s",
-            background: isActive ? "var(--chakra-colors-white)" : "transparent",
-            color: isActive ? "black" : "inherit",
-            fontSize: "1rem",
-          })}
-        >
-          <BoxIcon size={18} />
-          <span>Upload Devices</span>
-        </NavLink>
-      </>
-    </Flex>
-  );
+          <NavLink to="/upload-devices">
+            <BoxIcon size={18} /> Upload Devices
+          </NavLink>
+        </Button>
+      </Flex>
+    );
+  };
 
   return (
     <Box
@@ -136,7 +104,7 @@ const Navbar = () => {
     >
       <Flex maxW="container.xl" mx="auto" h="14" px="4" alignItems="center">
         <Flex mr="4" alignItems="center" gap="2">
-          <Text fontSize="xl" fontWeight="bold">
+          <Text fontSize="xl" fontWeight="bold" color={"white"}>
             IoT FOTA
           </Text>
         </Flex>

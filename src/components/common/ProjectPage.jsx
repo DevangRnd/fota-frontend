@@ -138,10 +138,10 @@ const ProjectPage = () => {
             >
               {allProjects.map((project) => (
                 <Card.Root
+                  maxW={"xl"}
                   colorPalette={"blue"}
                   variant={"outline"}
                   key={project._id}
-                  size={"lg"}
                 >
                   <Card.Body gap={2}>
                     <Card.Title

@@ -119,7 +119,7 @@
 
 /* Device Management */
 .bg {
-  animation: slide 30s ease-in-out infinite alternate;
+  animation: slide 20s ease-in-out infinite alternate;
   background-image: linear-gradient(
     -60deg,
     rgb(18, 227, 255) 50%,
@@ -136,11 +136,11 @@
 
 .bg2 {
   animation-direction: alternate-reverse;
-  animation-duration: 30s;
+  animation-duration: 20s;
 }
 
 .bg3 {
-  animation-duration: 30s;
+  animation-duration: 20s;
 }
 
 @keyframes slide {
