@@ -44,7 +44,7 @@ const FirmwareUpload = () => {
 
   return (
     <Box
-      h="100dvh"
+      h="calc(100dvh - 56px)"
       w="100%"
       display="flex"
       justifyContent="center"

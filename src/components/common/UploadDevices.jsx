@@ -25,8 +25,8 @@ import {
   DialogRoot,
   DialogTrigger,
 } from "../ui/dialog";
-import { CloudUpload } from "lucide-react";
-
+import { CircleChevronRight, CloudUpload } from "lucide-react";
+import { Alert } from "../ui/alert";
 const UploadDevices = () => {
   const {
     file,
@@ -70,7 +70,7 @@ const UploadDevices = () => {
 
   return (
     <Flex
-      h="100dvh"
+      h="calc(100dvh - 56px)"
       w="100%"
       display="flex"
       justifyContent="center"
@@ -147,6 +147,22 @@ const UploadDevices = () => {
           </MenuContent>
         </MenuRoot>
       </Box>
+      {selectedProject && (
+        <Alert my={7} w="md" title="Selection" icon={<CircleChevronRight />}>
+          <Flex flexDirection={"column"}>
+            <Text>
+              Selected Project:
+              {allProjects.find((project) => project._id === selectedProject)
+                ?.name || "No Project"}
+            </Text>
+            <Text>
+              Selected Vendor:
+              {vendors.find((vendor) => vendor._id === selectedVendor)?.name ||
+                "No Vendor Selected"}
+            </Text>
+          </Flex>
+        </Alert>
+      )}
 
       {/* File Upload */}
       <Box
