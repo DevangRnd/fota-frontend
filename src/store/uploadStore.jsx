@@ -16,7 +16,7 @@ const useUploadStore = create((set, get) => ({
     set({ loading: true });
     try {
       const response = await axios.get(
-        "http://103.127.29.215/api/get-projects"
+        `${import.meta.env.VITE_API_URL}/get-projects`
       );
       set({ allProjects: response.data.projects });
     } catch (error) {
@@ -60,7 +60,7 @@ const useUploadStore = create((set, get) => ({
 
     try {
       const response = await axios.post(
-        `http://103.127.29.215/api/vendor/${vendorId}/add-device`,
+        `${import.meta.env.VITE_API_URL}/vendor/${vendorId}/add-device`,
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },

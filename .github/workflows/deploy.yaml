@@ -26,6 +26,8 @@ jobs:
         run: npm install
 
       - name: Build the Vite app
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
         run: |
           echo "Running npm run build"
           npm run build

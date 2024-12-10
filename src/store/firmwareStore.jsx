@@ -78,7 +78,7 @@ const useFirmwareStore = create((set, get) => ({
     try {
       // Axios post request with proper configuration
       const response = await axios.post(
-        "http://103.127.29.215/api/upload-firmware",
+        `${import.meta.env.VITE_API_URL}/upload-firmware`,
         formData,
         {
           headers: {

@@ -10,7 +10,7 @@ const useProjectStore = create((set) => ({
     set({ isLoading: true });
     try {
       const response = await axios.get(
-        "http://103.127.29.215/api/get-projects"
+        `${import.meta.env.VITE_API_URL}/get-projects`
       ); // Replace with your API endpoint
       set({ allProjects: response.data.projects || [] });
     } catch (error) {
@@ -37,7 +37,7 @@ const useProjectStore = create((set) => ({
       set({ btnLoading: true });
       try {
         const response = await axios.post(
-          "http://103.127.29.215/api/create-project",
+          `${import.meta.env.VITE_API_URL}/create-project`,
           { name }
         ); // Replace with your API endpoint
         set((state) => ({

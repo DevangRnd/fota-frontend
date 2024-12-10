@@ -15,10 +15,13 @@ const useAuthStore = create(
       login: async (username, password) => {
         set({ isLoading: true, error: null });
         try {
-          const response = await axios.post("http://103.127.29.215/api/login", {
-            username,
-            password,
-          });
+          const response = await axios.post(
+            `${import.meta.env.VITE_API_URL}/login`,
+            {
+              username,
+              password,
+            }
+          );
           const { token, user } = response.data;
 
           set({
@@ -59,7 +62,7 @@ const useAuthStore = create(
       register: async (username, password) => {
         set({ isLoading: true, error: null });
         try {
-          await axios.post("http://103.127.29.215/auth/register", {
+          await axios.post(`${import.meta.env.VITE_API_URL}/register`, {
             username,
             password,
           });

@@ -56,7 +56,7 @@ const useDeviceStore = create((set, get) => ({
     const { selectedDevices, selectedFirmware, fetchData } = get();
 
     try {
-      await axios.post("http://103.127.29.215/api/initiate-update", {
+      await axios.post(`${import.meta.env.VITE_API_URL}/initiate-update`, {
         deviceIds: selectedDevices,
         firmwareName: selectedFirmware,
       });

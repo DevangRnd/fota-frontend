@@ -9,7 +9,7 @@ const useVendorStore = create((set) => ({
     set({ isLoading: true });
     try {
       const response = await axios.get(
-        `http://103.127.29.215/api/project/${projectId}/all-vendors`
+        `${import.meta.env.VITE_API_URL}/project/${projectId}/all-vendors`
       );
 
       set({ allVendors: response.data.vendors || [] });
@@ -35,7 +35,7 @@ const useVendorStore = create((set) => ({
       set({ btnLoading: true });
       try {
         const response = await axios.post(
-          `http://103.127.29.215/api/project/${projectId}/create-vendor`,
+          `${import.meta.env.VITE_API_URL}/project/${projectId}/create-vendor`,
           { vendorName }
         );
         set((state) => ({
