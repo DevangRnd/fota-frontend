@@ -38,7 +38,7 @@ jobs:
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           DEPLOY_PATH: /var/www/fota-frontend/dist # Changed to match Nginx config
-          SERVER_IP: 103.209.145.218
+          SERVER_IP: ${{ secrets.SERVER_IP }}
         run: |
           # Setup SSH key
           mkdir -p ~/.ssh
