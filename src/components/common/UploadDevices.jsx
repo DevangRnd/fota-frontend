@@ -10,6 +10,11 @@ import {
 } from "@chakra-ui/react";
 import useUploadStore from "../../store/uploadStore";
 import {
+  BreadcrumbCurrentLink,
+  BreadcrumbLink,
+  BreadcrumbRoot,
+} from "../ui/breadcrumb";
+import {
   MenuContent,
   MenuRadioItem,
   MenuRadioItemGroup,
@@ -27,6 +32,7 @@ import {
 } from "../ui/dialog";
 import { CircleChevronRight, CloudUpload } from "lucide-react";
 import { Alert } from "../ui/alert";
+import { toaster } from "../ui/toaster";
 const UploadDevices = () => {
   const {
     file,
@@ -57,8 +63,11 @@ const UploadDevices = () => {
   // Handle upload button click
   const handleUpload = async () => {
     if (!selectedVendor) {
-      alert("Please select a vendor before uploading.");
-      return;
+      toaster.create({
+        title: "Please Select A Vendor First",
+        type: "error",
+        duration: 3000,
+      });
     }
     await uploadFile(selectedVendor);
   };
@@ -76,7 +85,37 @@ const UploadDevices = () => {
       justifyContent="center"
       alignItems="center"
       direction="column"
+      flexDirection={"column"}
     >
+      <Alert
+        variant={"subtle"}
+        title=" Please Select Desired Project and Then The Vendor"
+        w={"md"}
+      />
+      {selectedProject && (
+        <Alert
+          status={"success"}
+          my={7}
+          w="md"
+          title="Selection"
+          icon={<CircleChevronRight />}
+        >
+          <Flex flexDirection={"column"} gap={4}>
+            <BreadcrumbRoot size={"lg"}>
+              <BreadcrumbLink>
+                {allProjects.find((project) => project._id === selectedProject)
+                  ?.name || "No Project"}
+              </BreadcrumbLink>
+              <BreadcrumbCurrentLink>
+                {" "}
+                {vendors.find((vendor) => vendor._id === selectedVendor)
+                  ?.name || "No Vendor Selected"}
+              </BreadcrumbCurrentLink>
+            </BreadcrumbRoot>
+          </Flex>
+        </Alert>
+      )}
+
       <Box w={"md"} display={"flex"} justifyContent={"space-between"} py={3}>
         {/* Project Selection */}
         <MenuRoot>
@@ -99,30 +138,6 @@ const UploadDevices = () => {
           </MenuContent>
         </MenuRoot>
 
-        {/* Vendor Selection */}
-        {/* <Box
-          rounded={"md"}
-          outline={"1px solid gray"}
-          p={2}
-          as="select"
-          onChange={(e) => setSelectedVendor(e.target.value)}
-          disabled={!selectedProject}
-        >
-          <option value="" disabled selected>
-            {selectedProject ? "Select Vendor" : "Select a project first"}
-          </option>
-          {vendors.length > 0 ? (
-            vendors.map((vendor) => (
-              <option value={vendor._id} key={vendor._id}>
-                {vendor.name}
-              </option>
-            ))
-          ) : (
-            <option value="" disabled>
-              No vendors available
-            </option>
-          )}
-        </Box> */}
         <MenuRoot>
           <MenuTrigger asChild>
             <Button variant="outline" size="sm">
@@ -147,22 +162,6 @@ const UploadDevices = () => {
           </MenuContent>
         </MenuRoot>
       </Box>
-      {selectedProject && (
-        <Alert my={7} w="md" title="Selection" icon={<CircleChevronRight />}>
-          <Flex flexDirection={"column"}>
-            <Text>
-              Selected Project:
-              {allProjects.find((project) => project._id === selectedProject)
-                ?.name || "No Project"}
-            </Text>
-            <Text>
-              Selected Vendor:
-              {vendors.find((vendor) => vendor._id === selectedVendor)?.name ||
-                "No Vendor Selected"}
-            </Text>
-          </Flex>
-        </Alert>
-      )}
 
       {/* File Upload */}
       <Box

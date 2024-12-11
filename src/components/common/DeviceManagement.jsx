@@ -43,8 +43,14 @@ import {
 } from "../ui/breadcrumb";
 
 import TotalStats from "./TotalStats";
-import { ChevronRight, ChevronsRight, FileCog, SearchCode } from "lucide-react";
-import { useLocation, useParams } from "react-router-dom";
+import {
+  ArrowRightCircle,
+  ChevronRight,
+  ChevronsRight,
+  FileCog,
+  SearchCode,
+} from "lucide-react";
+import { Link, useLocation, useParams } from "react-router-dom";
 const DeviceManagement = () => {
   const {
     loading,
@@ -87,7 +93,25 @@ const DeviceManagement = () => {
   }, []);
 
   if (!allDevices) {
-    return <Text>No Devices Found For This Vendor</Text>;
+    return (
+      <Box
+        h="calc(100dvh - 56px)"
+        w="100%"
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        flexDirection="column"
+      >
+        <Text fontSize={"4xl"} fontWeight={"bold"}>
+          No Devices Found For This Vendor
+        </Text>
+        <Button asChild variant={"subtle"}>
+          <Link to={"/upload-devices"}>
+            Upload <ArrowRightCircle />
+          </Link>
+        </Button>
+      </Box>
+    );
   }
   // Filtered devices based on search term
   const filteredDevices = allDevices.filter((device) => {
@@ -99,7 +123,9 @@ const DeviceManagement = () => {
           .toLowerCase()
           .includes(searchTerm.vendor.toLowerCase())) &&
       (!searchTerm.uploadedOn ||
-        device.uploadedOn.includes(searchTerm.uploadedOn)) &&
+        format(new Date(device.createdAt), "MMM d, yyyy").includes(
+          searchTerm.uploadedOn
+        )) &&
       (!searchTerm.district ||
         device.district
           .toLowerCase()
@@ -110,8 +136,7 @@ const DeviceManagement = () => {
         device.panchayat
           .toLowerCase()
           .includes(searchTerm.panchayat.toLowerCase())) &&
-      (!search || device.deviceId.toLowerCase().includes(search)) &&
-      !searchTerm.uploadedOn
+      (!search || device.deviceId.toLowerCase().includes(search))
     );
   });
 
@@ -175,6 +200,11 @@ const DeviceManagement = () => {
   const allPanchayats = [
     ...new Set(allDevices.map((device) => device.panchayat)),
   ];
+  const allDates = [
+    ...new Set(
+      allDevices.map((device) => new Date(device.createdAt).toDateString())
+    ),
+  ].map((dateString) => format(new Date(dateString), "MMM d, yyyy"));
 
   if (loading) {
     return (
@@ -186,9 +216,9 @@ const DeviceManagement = () => {
 
   return (
     <Box position={"relative"} overflow={"hidden"}>
-      <div className="bg"></div>
-      <div className="bg bg2"></div>
-      <div className="bg bg3"></div>
+      {/* <div className="bg"></div> */}
+      {/* {<div className="bg bg2"></div> */}
+      {/* <div className="bg bg3"></div> */}
       <Flex flexDirection={"column"} gap={5} w={"80%"} mx={"auto"} my={10}>
         <Text fontSize={"4xl"} fontWeight={"bold"}>
           All Devices For {location.state.vendorName}
@@ -198,7 +228,7 @@ const DeviceManagement = () => {
           flexDirection={"column"}
           py={5}
           px={5}
-          rounded={"xl"}
+          rounded={"md"}
           shadow={"2xl"}
           justifyContent={"space-between"}
         >
@@ -207,7 +237,7 @@ const DeviceManagement = () => {
           </Text>
           <Grid
             shadowColor={"white"}
-            gridTemplateColumns={{ md: "repeat(1,1fr)", lg: "repeat(3,1fr)" }}
+            gridTemplateColumns={{ md: "repeat(1,1fr)", lg: "repeat(4,1fr)" }}
             gap={10}
           >
             <Box
@@ -228,6 +258,7 @@ const DeviceManagement = () => {
                 </option>
               ))}
             </Box>
+
             <Box
               name="block"
               rounded={"md"}
@@ -264,6 +295,24 @@ const DeviceManagement = () => {
                 </option>
               ))}
             </Box>
+            <Box
+              name="uploadedOn"
+              rounded={"md"}
+              fontSize={"0.87rem"}
+              p={2}
+              as={"select"}
+              value={searchTerm.uploadedOn}
+              onChange={handleChange}
+              _focus={{ outline: "2px solid gray", outlineOffset: "2px" }}
+              transition={"all 0.1s ease-in-out"}
+            >
+              <option value="">Uploaded On</option>
+              {allDates.map((date, index) => (
+                <option value={date} key={index}>
+                  {date}
+                </option>
+              ))}
+            </Box>
           </Grid>
         </Card.Root>
 
@@ -271,7 +320,8 @@ const DeviceManagement = () => {
         {(searchTerm.vendor ||
           searchTerm.district ||
           searchTerm.block ||
-          searchTerm.panchayat) && (
+          searchTerm.panchayat ||
+          searchTerm.uploadedOn) && (
           <Alert
             variant={"subtle"}
             icon={<ChevronRight />}
@@ -303,6 +353,11 @@ const DeviceManagement = () => {
                   Panchayat: {searchTerm.panchayat}
                 </BreadcrumbCurrentLink>
               )}
+              {searchTerm.uploadedOn && (
+                <BreadcrumbCurrentLink>
+                  Uploaded On: {searchTerm.uploadedOn}
+                </BreadcrumbCurrentLink>
+              )}
             </BreadcrumbRoot>
           </Alert>
         )}
@@ -321,6 +376,8 @@ const DeviceManagement = () => {
               onChange={(e) => setDevicesPerPage(Number(e.target.value))}
               rounded={"md"}
               fontSize={"0.87rem"}
+              _focus={{ outline: "2px solid gray", outlineOffset: "2px" }}
+              transition={"all 0.1s ease-in-out"}
             >
               <Box as={"option"} value={10}>
                 10 per page
@@ -335,7 +392,7 @@ const DeviceManagement = () => {
           )}
           <InputGroup startElement={<SearchCode />}>
             <Input
-              variant={"subtle"}
+              variant={"flushed"}
               placeholder="Search For Device ID"
               value={deviceIdSearch}
               onChange={(e) => setDeviceIdSearch(e.target.value)}
@@ -366,10 +423,11 @@ const DeviceManagement = () => {
         </Box>
         <Table.ScrollArea borderWidth={"1px"} maxW={"100%"}>
           <Table.Root
+            colorPalette={"border"}
             size={"md"}
             variant={"outline"}
             showColumnBorder
-            colorPalette={"blue"}
+            interactive
           >
             <Table.Header bg={"blue.700"} _light={{ bg: "blue.200" }}>
               <Table.Row>
@@ -392,11 +450,14 @@ const DeviceManagement = () => {
             </Table.Header>
             <Table.Body>
               {currentDevices.map((device) => (
-                <Table.Row key={device._id}>
+                <Table.Row
+                  data-selected={selectedDevices.includes(device._id)}
+                  key={device._id}
+                >
                   <Table.Cell>
                     <Checkbox
                       cursor={"pointer"}
-                      variant={"solid"}
+                      variant={"subtle"}
                       colorPalette={"green"}
                       checked={selectedDevices.includes(device.deviceId)}
                       onChange={() => selectDevice(device.deviceId)}
@@ -454,7 +515,11 @@ const DeviceManagement = () => {
                     </Badge>
                   </Table.Cell>
                   <Table.Cell>
-                    <Badge size={"md"}>
+                    <Badge
+                      size={{ base: "sm", lg: "md" }}
+                      variant={"surface"}
+                      colorPalette={"blue"}
+                    >
                       {device.lastUpdated
                         ? format(
                             new Date(device.lastUpdated),
@@ -464,7 +529,11 @@ const DeviceManagement = () => {
                     </Badge>
                   </Table.Cell>
                   <Table.Cell>
-                    <Badge size={"md"} variant={"subtle"}>
+                    <Badge
+                      size={{ base: "sm", lg: "md" }}
+                      variant={"surface"}
+                      colorPalette={"blue"}
+                    >
                       {device.createdAt
                         ? format(
                             new Date(device.createdAt),
@@ -558,12 +627,12 @@ const DeviceManagement = () => {
 
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle> Please Confirm</DialogTitle>
+                  <DialogTitle>Please Confirm</DialogTitle>
                 </DialogHeader>
                 <DialogBody>
                   <DialogDescription>
-                    You are about to initiate update for{" "}
-                    {selectedDevices.length} devices. With firmware version{" "}
+                    You are about to initiate update for
+                    {selectedDevices.length} devices. With firmware version
                     {firmwares.map((f) => f.name)}
                   </DialogDescription>
                 </DialogBody>

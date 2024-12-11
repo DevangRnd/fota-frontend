@@ -124,21 +124,25 @@ const ProjectPage = () => {
           </DialogContent>
         </DialogRoot>
         {allProjects.length === 0 ? (
-          <Text>No Projects Here..</Text>
+          <Text textAlign={"center"} fontSize={"4xl"} fontWeight={"bold"}>
+            No Vendors Here..
+          </Text>
         ) : (
           <Flex flexDirection={"column"} gap={7}>
             <Text fontSize={"3xl"} fontWeight={"bold"}>
-              All Projects
+              All Projects {`(${allProjects.length})`}
             </Text>
 
             <Box
               display={"grid"}
               gap={10}
-              gridTemplateColumns={"repeat(3,1fr)"}
+              gridTemplateColumns={{
+                base: "repeat(1,1fr)",
+                lg: "repeat(3,1fr)",
+              }}
             >
               {allProjects.map((project) => (
                 <Card.Root
-                  maxW={"xl"}
                   colorPalette={"blue"}
                   variant={"outline"}
                   key={project._id}

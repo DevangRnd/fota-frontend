@@ -47,6 +47,7 @@ const VendorPage = () => {
       </Box>
     );
   }
+
   return (
     <Box position="relative" overflow="hidden">
       <div className="area">
@@ -114,17 +115,23 @@ const VendorPage = () => {
           </DialogContent>
         </DialogRoot>
         {allVendors.length === 0 ? (
-          <Text>No Vendors Here..</Text>
+          <Text textAlign={"center"} fontSize={"4xl"} fontWeight={"bold"}>
+            No Vendors Here..
+          </Text>
         ) : (
           <Flex flexDirection={"column"} gap={7}>
             <Text fontSize={"3xl"} fontWeight={"bold"}>
               All Vendors for {location.state.projectName}
+              {`(${allVendors.length})`}
             </Text>
 
             <Box
               display={"grid"}
               gap={10}
-              gridTemplateColumns={"repeat(3,1fr)"}
+              gridTemplateColumns={{
+                base: "repeat(1,1fr)",
+                lg: "repeat(3,1fr)",
+              }}
             >
               {allVendors.map((vendor) => (
                 <Card.Root

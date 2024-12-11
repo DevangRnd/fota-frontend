@@ -98,13 +98,15 @@ const Navbar = () => {
       zIndex="50"
       borderBottom="1px"
       borderColor="gray.200"
-      bg="blue.600"
+      bg={{ _dark: "blue.700", base: "blue.400" }}
       backdropFilter="blur(10px)"
+      shadow={"2xl"}
+      shadowColor={"white"}
       w={"100%"}
     >
       <Flex maxW="container.xl" mx="auto" h="14" px="4" alignItems="center">
-        <Flex mr="4" alignItems="center" gap="2">
-          <Text fontSize="xl" fontWeight="bold" color={"white"}>
+        <Flex mr="10" alignItems="center" gap="2">
+          <Text fontSize="xl" fontWeight="bold">
             IoT FOTA
           </Text>
         </Flex>
